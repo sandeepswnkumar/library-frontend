@@ -7,7 +7,6 @@ import Container from '@/components/layout/Container'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
-import { useEffect } from 'react'
 
 type TableRow = {
     checkbox: boolean
@@ -31,17 +30,18 @@ const TableData: TableRow[] = Array.from({ length: 30 }, (_, index) => ({
     col_6: `Data ${index + 1}-6`,
 }))
 
-export default function Home() {
-    useEffect(() =>{
-        console.log("here")
-    }, [])
+export default function Library() {
     return (
         <Container>
             <SubHeaderCard>
-                <h2 className="font-semibold">Title</h2>
                 <div>
-                    <Link href={'/library/create'}>
-                        <Button variant={'outline'}>Add Library</Button>
+                    <h2 className="font-bold uppercase text-muted-foreground">
+                        Libaray Location
+                    </h2>
+                </div>
+                <div>
+                    <Link href={'/library-location/create'}>
+                        <Button variant={'outline'} className='bg-white'>Add Library Location</Button>
                     </Link>
                 </div>
             </SubHeaderCard>
