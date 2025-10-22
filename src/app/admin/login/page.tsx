@@ -58,10 +58,6 @@ export default function AdminLogin() {
         }
     }
 
-    if (auth && !auth.isAuthenticated) {
-        return <Loader />
-    }
-    console.log("auth.currentUser", auth.currentUser, auth.isAuthenticated)
     return (
         <div className="flex w-screen h-screen">
             <div className="grid grid-cols-8 w-full h-full">

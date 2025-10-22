@@ -24,15 +24,64 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useAppSelector } from '@/lib/hooks'
+
+import * as React from 'react'
+import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react'
+
+import { cn } from '@/lib/utils'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
+import LibraryLocationService from '@/services/LibraryLocationService'
+
+const frameworks = [
+    {
+        value: 'next.js',
+        label: 'Next.js',
+    },
+    {
+        value: 'sveltekit',
+        label: 'SvelteKit',
+    },
+    {
+        value: 'nuxt.js',
+        label: 'Nuxt.js',
+    },
+    {
+        value: 'remix',
+        label: 'Remix',
+    },
+    {
+        value: 'astro',
+        label: 'Astro',
+    },
+]
 
 export default function CreateLibraryLocation() {
+    const [open, setOpen] = React.useState(false)
+    const [value, setValue] = React.useState('')
     const formRef = useRef<HTMLFormElement | null>(null)
+    const misc = useAppSelector((state) => state.misc)
     const formSchema = z.object({
         libraryName: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
-        libraryId: z.string().min(1, {
+        libraryId: z.number().min(1, {
             message: 'Please select a status.',
+        }),
+        locationName: z.string().min(2, {
+            message: 'Location name must be at least 2 characters.',
         }),
         email: z.string().min(1, {
             message: 'Email is required',
@@ -44,13 +93,13 @@ export default function CreateLibraryLocation() {
             message: 'Address 1 is required',
         }),
         address2: z.string().optional(),
-        cityId: z.string().min(2, {
+        cityId: z.number().min(2, {
             message: 'City is required',
         }),
-        stateId: z.string().min(2, {
+        stateId: z.number().min(2, {
             message: 'State is required',
         }),
-        countryId: z.string().min(2, {
+        countryId: z.number().min(2, {
             message: 'Country Id is required',
         }),
         pincode: z.string().min(2, {
@@ -64,15 +113,16 @@ export default function CreateLibraryLocation() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            libraryName: '',
-            libraryId: '',
+            libraryName: '33',
+            libraryId: 1,
+            locationName: '',
             email: '',
             phone: '',
             address1: '',
             address2: '',
-            cityId: '',
-            stateId: '',
-            countryId: '',
+            cityId: 0,
+            stateId: 0,
+            countryId: 0,
             pincode: '',
             latitude: '',
             longitude: '',
@@ -80,8 +130,12 @@ export default function CreateLibraryLocation() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const resp = await LibraryLocationService.createLibraryLocation(
+                values
+            )
+        } catch {}
     }
 
     const handleSaveClick = () => {
@@ -121,8 +175,97 @@ export default function CreateLibraryLocation() {
                                         <FormItem>
                                             <FormLabel>Library</FormLabel>
                                             <FormControl>
+                                                <Popover
+                                                    open={open}
+                                                    onOpenChange={setOpen}
+                                                >
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            role="combobox"
+                                                            aria-expanded={open}
+                                                            className="w-full justify-between hover:bg-transparent hover:text-inherit"
+                                                        >
+                                                            {value
+                                                                ? frameworks.find(
+                                                                      (
+                                                                          framework
+                                                                      ) =>
+                                                                          framework.value ===
+                                                                          value
+                                                                  )?.label
+                                                                : 'Select framework...'}
+                                                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="p-0 rounded-none">
+                                                        <Command>
+                                                            <CommandInput placeholder="Library" />
+                                                            <CommandList>
+                                                                <CommandEmpty>
+                                                                    No framework
+                                                                    found.
+                                                                </CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {frameworks.map(
+                                                                        (
+                                                                            framework
+                                                                        ) => (
+                                                                            <CommandItem
+                                                                                key={
+                                                                                    framework.value
+                                                                                }
+                                                                                value={
+                                                                                    framework.value
+                                                                                }
+                                                                                onSelect={(
+                                                                                    currentValue
+                                                                                ) => {
+                                                                                    setValue(
+                                                                                        currentValue ===
+                                                                                            value
+                                                                                            ? ''
+                                                                                            : currentValue
+                                                                                    )
+                                                                                    setOpen(
+                                                                                        false
+                                                                                    )
+                                                                                }}
+                                                                            >
+                                                                                <CheckIcon
+                                                                                    className={cn(
+                                                                                        'mr-2 h-4 w-4',
+                                                                                        value ===
+                                                                                            framework.value
+                                                                                            ? 'opacity-100'
+                                                                                            : 'opacity-0'
+                                                                                    )}
+                                                                                />
+                                                                                {
+                                                                                    framework.label
+                                                                                }
+                                                                            </CommandItem>
+                                                                        )
+                                                                    )}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="locationName"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Location Name</FormLabel>
+                                            <FormControl>
                                                 <Input
-                                                    placeholder="Library"
+                                                    placeholder="Location Name"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -201,20 +344,51 @@ export default function CreateLibraryLocation() {
                                         <FormItem>
                                             <FormLabel>City</FormLabel>
                                             <FormControl>
-                                                <Select {...field}>
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value
+                                                            ? String(
+                                                                  field.value
+                                                              )
+                                                            : ''
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="City" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="light">
-                                                            Light
-                                                        </SelectItem>
-                                                        <SelectItem value="dark">
-                                                            Dark
-                                                        </SelectItem>
-                                                        <SelectItem value="system">
-                                                            System
-                                                        </SelectItem>
+                                                        {misc.cities.length >
+                                                        0 ? (
+                                                            misc.cities.map(
+                                                                (city) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            city.id
+                                                                        }
+                                                                        value={String(
+                                                                            city.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            city.name
+                                                                        }
+                                                                    </SelectItem>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="cityNotFound"
+                                                                value="cityNotFound"
+                                                            >
+                                                                No record found
+                                                            </SelectItem>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -229,20 +403,50 @@ export default function CreateLibraryLocation() {
                                         <FormItem>
                                             <FormLabel>State</FormLabel>
                                             <FormControl>
-                                                <Select {...field}>
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value
+                                                            ? String(
+                                                                  field.value
+                                                              )
+                                                            : ''
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="State" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="light">
-                                                            Light
-                                                        </SelectItem>
-                                                        <SelectItem value="dark">
-                                                            Dark
-                                                        </SelectItem>
-                                                        <SelectItem value="system">
-                                                            System
-                                                        </SelectItem>
+                                                        {misc.states.length ? (
+                                                            misc.states.map(
+                                                                (state) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            state.id
+                                                                        }
+                                                                        value={String(
+                                                                            state.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            state.name
+                                                                        }
+                                                                    </SelectItem>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="stateFoundFound"
+                                                                value="stateNotFound"
+                                                            >
+                                                                No record found
+                                                            </SelectItem>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -257,20 +461,50 @@ export default function CreateLibraryLocation() {
                                         <FormItem>
                                             <FormLabel>Country</FormLabel>
                                             <FormControl>
-                                                <Select {...field}>
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value
+                                                            ? String(
+                                                                  field.value
+                                                              )
+                                                            : ''
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Country" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="light">
-                                                            Light
-                                                        </SelectItem>
-                                                        <SelectItem value="dark">
-                                                            Dark
-                                                        </SelectItem>
-                                                        <SelectItem value="system">
-                                                            System
-                                                        </SelectItem>
+                                                        {misc.country.length ? (
+                                                            misc.country.map(
+                                                                (cont) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            cont.id
+                                                                        }
+                                                                        value={String(
+                                                                            cont.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            cont.name
+                                                                        }
+                                                                    </SelectItem>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="countryNotFound"
+                                                                value="countryNotFound"
+                                                            >
+                                                                No record found
+                                                            </SelectItem>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>

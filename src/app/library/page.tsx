@@ -6,42 +6,45 @@ import SubHeaderCard from '@/components/Custom/SubHeaderCard'
 import Container from '@/components/layout/Container'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import LibraryService from '@/services/LibraryService'
 import Link from 'next/link'
-
-type TableRow = {
-    checkbox: boolean
-    id: number
-    col_1: string
-    col_2: string
-    col_3: string
-    col_4: string
-    col_5: string
-    col_6: string
-}
-
-const TableData: TableRow[] = Array.from({ length: 30 }, (_, index) => ({
-    checkbox: false,
-    id: index + 1,
-    col_1: `Data ${index + 1}-1`,
-    col_2: `Data ${index + 1}-2`,
-    col_3: `Data ${index + 1}-3`,
-    col_4: `Data ${index + 1}-4`,
-    col_5: `Data ${index + 1}-5`,
-    col_6: `Data ${index + 1}-6`,
-}))
+import { useEffect, useReducer } from 'react'
 
 export default function Library() {
+    const [event, updateEvent] = useReducer(
+        (prev, next) => {
+            return { ...prev, ...next }
+        },
+        {
+            libraries: [],
+        }
+    )
+
+    const getLibraries = async () => {
+        try {
+            const resp = await LibraryService.getLibraries()
+            if (resp.data.success) {
+                updateEvent({
+                    libraries: resp.data.data,
+                })
+            }
+        } catch {}
+    }
+
+    useEffect(() => {
+        getLibraries()
+    }, [])
     return (
         <Container>
             <SubHeaderCard>
-                <div>
-                    <h2 className="font-bold uppercase text-muted-foreground">
-                        Libaray
-                    </h2>
-                </div>
+                <h2 className="font-bold uppercase text-muted-foreground">
+                    Libaray
+                </h2>
                 <div>
                     <Link href={'/library/create'}>
-                        <Button variant={'outline'}>Add Library</Button>
+                        <Button variant={'outline'} className="bg-white">
+                            Add Library
+                        </Button>
                     </Link>
                 </div>
             </SubHeaderCard>
@@ -53,11 +56,15 @@ export default function Library() {
                     </div>
                 </div>
                 <Datatable
-                    columns={assets.data.Columns}
-                    data={TableData}
+                    columns={assets.data.columns.LibraryColumns}
+                    data={event.libraries}
                     totalCount={0}
                     allCheck={false}
                     setAllCheck={() => {}}
+                    rowAction={[
+                        { name: 'Edit', type: 'LINK', url: '/library/' },
+                        { name: 'Delete', type: 'DELETE' },
+                    ]}
                 />
             </BaseCard>
         </Container>

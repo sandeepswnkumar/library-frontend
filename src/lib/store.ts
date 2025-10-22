@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import AuthSliceReduder from './features/auth/AuthSlice'
+import LibrarySliceReducer from './features/libarary/librarySlice'
+import MiscellaneousSliceReducer from './features/MiscellaneousSlice'
 
 export const makeStore = () => {
     return configureStore({
         reducer: {
             auth: AuthSliceReduder,
+            library: LibrarySliceReducer,
+            misc: MiscellaneousSliceReducer 
         },
     })
 }

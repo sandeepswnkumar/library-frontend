@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -26,15 +26,33 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useAppSelector } from '@/lib/hooks'
+import LibraryService from '@/services/LibraryService'
+import LibraryLocationService from '@/services/LibraryLocationService'
 
-const AddLibraryLocation = () => {
+type LibraryProps = {
+    id: string
+    libraryName: string
+}
+
+const AddLibraryLocation = ({
+    library,
+    getLibraryDetail,
+}: {
+    library: LibraryProps
+    getLibraryDetail: () => Promise<any>
+}) => {
+    const misc = useAppSelector((state) => state.misc)
     const [open, setOpen] = useState<boolean>(false)
     const formSchema = z.object({
         libraryName: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
-        libraryId: z.string().min(1, {
+        libraryId: z.number().min(1, {
             message: 'Please select a status.',
+        }),
+        locationName: z.string().min(1, {
+            message: 'Branch name is required',
         }),
         email: z.string().min(1, {
             message: 'Email is required',
@@ -46,16 +64,16 @@ const AddLibraryLocation = () => {
             message: 'Address 1 is required',
         }),
         address2: z.string().optional(),
-        cityId: z.string().min(2, {
+        cityId: z.number().min(2, {
             message: 'City is required',
         }),
-        stateId: z.string().min(2, {
+        stateId: z.number().min(2, {
             message: 'State is required',
         }),
-        countryId: z.string().min(2, {
+        countryId: z.number().min(2, {
             message: 'Country Id is required',
         }),
-        pincode: z.string().min(2, {
+        pincode: z.string().min(6, {
             message: 'Pincode is required',
         }),
         latitude: z.string().optional(),
@@ -67,14 +85,15 @@ const AddLibraryLocation = () => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             libraryName: '',
-            libraryId: '',
+            libraryId: 0,
+            locationName: '',
             email: '',
             phone: '',
             address1: '',
             address2: '',
-            cityId: '',
-            stateId: '',
-            countryId: '',
+            cityId: 0,
+            stateId: 0,
+            countryId: 0,
             pincode: '',
             latitude: '',
             longitude: '',
@@ -82,9 +101,65 @@ const AddLibraryLocation = () => {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    useEffect(() => {
+        if (library) {
+            form.reset({
+                libraryName: library.libraryName,
+                libraryId: Number(library.id),
+                locationName: '',
+                email: '',
+                phone: '',
+                address1: '',
+                address2: '',
+                cityId: 0,
+                stateId: 0,
+                countryId: 0,
+                pincode: '',
+                latitude: '',
+                longitude: '',
+                mapUrl: '',
+            })
+        }
+        return () => {
+            form.reset({
+                libraryName: '',
+                libraryId: 0,
+                locationName: '',
+                email: '',
+                phone: '',
+                address1: '',
+                address2: '',
+                cityId: 0,
+                stateId: 0,
+                countryId: 0,
+                pincode: '',
+                latitude: '',
+                longitude: '',
+                mapUrl: '',
+            })
+        }
+    }, [library])
+
+    // console.log("form === ", form)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const resp = await LibraryLocationService.createLibraryLocation(
+                values
+            )
+            if (resp.data.success) {
+                getLibraryDetail()
+                setOpen(false)
+            }
+        } catch {}
     }
+
+    // function onError(errors, e) {
+    //     console.log("library === ", library)
+    //     console.log("form === ", form)
+    //     const errorKeys = Object.keys(errors)
+    //     console.log('errors : ', errors, e)
+    // }
+
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <Button
@@ -103,6 +178,26 @@ const AddLibraryLocation = () => {
                                 onSubmit={form.handleSubmit(onSubmit)}
                                 className="space-y-8 mt-4"
                             >
+                                <div className="mb-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="locationName"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Branch Name
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Branch Name"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                                 <div className="grid grid-cols-2 gap-4 mb-4">
                                     <FormField
                                         control={form.control}
@@ -177,20 +272,54 @@ const AddLibraryLocation = () => {
                                             <FormItem>
                                                 <FormLabel>City</FormLabel>
                                                 <FormControl>
-                                                    <Select {...field}>
+                                                    <Select
+                                                        {...field}
+                                                        value={
+                                                            field.value
+                                                                ? String(
+                                                                      field.value
+                                                                  )
+                                                                : ''
+                                                        }
+                                                        onValueChange={(
+                                                            value
+                                                        ) =>
+                                                            field.onChange(
+                                                                Number(value)
+                                                            )
+                                                        }
+                                                    >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="City" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="light">
-                                                                Light
-                                                            </SelectItem>
-                                                            <SelectItem value="dark">
-                                                                Dark
-                                                            </SelectItem>
-                                                            <SelectItem value="system">
-                                                                System
-                                                            </SelectItem>
+                                                            {misc.cities
+                                                                .length > 0 ? (
+                                                                misc.cities.map(
+                                                                    (city) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                city.id
+                                                                            }
+                                                                            value={String(
+                                                                                city.id
+                                                                            )}
+                                                                        >
+                                                                            {
+                                                                                city.name
+                                                                            }
+                                                                        </SelectItem>
+                                                                    )
+                                                                )
+                                                            ) : (
+                                                                <SelectItem
+                                                                    key="cityNotFound"
+                                                                    value="cityNotFound"
+                                                                >
+                                                                    No record
+                                                                    found
+                                                                </SelectItem>
+                                                            )}
                                                         </SelectContent>
                                                     </Select>
                                                 </FormControl>
@@ -205,20 +334,54 @@ const AddLibraryLocation = () => {
                                             <FormItem>
                                                 <FormLabel>State</FormLabel>
                                                 <FormControl>
-                                                    <Select {...field}>
+                                                    <Select
+                                                        {...field}
+                                                        value={
+                                                            field.value
+                                                                ? String(
+                                                                      field.value
+                                                                  )
+                                                                : ''
+                                                        }
+                                                        onValueChange={(
+                                                            value
+                                                        ) =>
+                                                            field.onChange(
+                                                                Number(value)
+                                                            )
+                                                        }
+                                                    >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="State" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="light">
-                                                                Light
-                                                            </SelectItem>
-                                                            <SelectItem value="dark">
-                                                                Dark
-                                                            </SelectItem>
-                                                            <SelectItem value="system">
-                                                                System
-                                                            </SelectItem>
+                                                            {misc.states
+                                                                .length ? (
+                                                                misc.states.map(
+                                                                    (state) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                state.id
+                                                                            }
+                                                                            value={String(
+                                                                                state.id
+                                                                            )}
+                                                                        >
+                                                                            {
+                                                                                state.name
+                                                                            }
+                                                                        </SelectItem>
+                                                                    )
+                                                                )
+                                                            ) : (
+                                                                <SelectItem
+                                                                    key="stateFoundFound"
+                                                                    value="stateNotFound"
+                                                                >
+                                                                    No record
+                                                                    found
+                                                                </SelectItem>
+                                                            )}
                                                         </SelectContent>
                                                     </Select>
                                                 </FormControl>
@@ -233,20 +396,54 @@ const AddLibraryLocation = () => {
                                             <FormItem>
                                                 <FormLabel>Country</FormLabel>
                                                 <FormControl>
-                                                    <Select {...field}>
+                                                    <Select
+                                                        {...field}
+                                                        value={
+                                                            field.value
+                                                                ? String(
+                                                                      field.value
+                                                                  )
+                                                                : ''
+                                                        }
+                                                        onValueChange={(
+                                                            value
+                                                        ) =>
+                                                            field.onChange(
+                                                                Number(value)
+                                                            )
+                                                        }
+                                                    >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Country" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="light">
-                                                                Light
-                                                            </SelectItem>
-                                                            <SelectItem value="dark">
-                                                                Dark
-                                                            </SelectItem>
-                                                            <SelectItem value="system">
-                                                                System
-                                                            </SelectItem>
+                                                            {misc.country
+                                                                .length ? (
+                                                                misc.country.map(
+                                                                    (cont) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                cont.id
+                                                                            }
+                                                                            value={String(
+                                                                                cont.id
+                                                                            )}
+                                                                        >
+                                                                            {
+                                                                                cont.name
+                                                                            }
+                                                                        </SelectItem>
+                                                                    )
+                                                                )
+                                                            ) : (
+                                                                <SelectItem
+                                                                    key="countryNotFound"
+                                                                    value="countryNotFound"
+                                                                >
+                                                                    No record
+                                                                    found
+                                                                </SelectItem>
+                                                            )}
                                                         </SelectContent>
                                                     </Select>
                                                 </FormControl>
@@ -303,7 +500,7 @@ const AddLibraryLocation = () => {
                                         )}
                                     />
                                 </div>
-                                <div className='mb-3'>
+                                <div className="mb-3">
                                     <FormField
                                         control={form.control}
                                         name="mapUrl"
@@ -321,8 +518,8 @@ const AddLibraryLocation = () => {
                                         )}
                                     />
                                 </div>
-                                <div className='w-full flex justify-end'>
-                                    <Button type='submit'>Add</Button>
+                                <div className="w-full flex justify-end">
+                                    <Button type="submit">Add</Button>
                                 </div>
                             </form>
                         </Form>

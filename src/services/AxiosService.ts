@@ -32,22 +32,24 @@ AxiosService.interceptors.response.use(
     },
     async function (error) {
         const originalRequest = error.config
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (
+            error.response.status === 401 &&
+            !originalRequest._retry &&
+            location.pathname !== '/admin/login'
+        ) {
             originalRequest._retry = true
-            const refreshToken = localStorage.getItem('refreshToken')
             try {
-                const { data } = await AxiosService.post(
-                    '/auth/refresh-token',
-                    { token: refreshToken }
-                )
-                localStorage.setItem('accessToken', data.accessToken)
+                const { data } = await AxiosService.post('/auth/refresh-token')
+                localStorage.setItem('_token', data.data.token)
                 AxiosService.defaults.headers.common[
                     'Authorization'
                 ] = `Bearer ${data.accessToken}`
                 return AxiosService(originalRequest)
             } catch (refreshError) {
-                console.log("refreshError", refreshError)
-                // Handle token refresh error (e.g., redirect to login)
+                originalRequest._retry = false
+                localStorage.getItem('login-route')
+                window.location.replace('/admin/login')
+                console.log('refreshError', refreshError)
             }
         }
         return Promise.reject(error)

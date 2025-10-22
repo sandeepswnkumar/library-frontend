@@ -15,7 +15,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form'
-import { useRef } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import {
     Select,
     SelectContent,
@@ -23,24 +23,79 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import LibraryService from '@/services/LibraryService'
+import { useAppSelector } from '@/lib/hooks'
+import { useParams, useRouter } from 'next/navigation'
 import AddLibraryFacilities from './AddLibraryFacilities'
 import AddLibraryLocation from './AddLibraryLocation'
+import { Switch } from '@/components/ui/switch'
+import { Edit, ExternalLink, Trash2 } from 'lucide-react'
+import LibraryLocationService from '@/services/LibraryLocationService'
+import Link from 'next/link'
 
 export default function EditLibrary() {
+    // const id = (props as { params?: { id?: string } })?.params?.id
+    const { id }: { id: string } = useParams()
+    type LibraryStatus = { id: number; name: string }
+    type LibraryType = { id: number; name: string }
+    type Location = {
+        id?: number
+        locationName?: string
+        isActive?: boolean
+        address1?: string
+        address2?: string
+        city?: { name?: string }
+        state?: { name?: string }
+        country?: { name?: string; phonecode?: string }
+        pincode?: string
+        email?: string
+        phone?: string
+    }
+    type LibraryData = {
+        locations?: Location[]
+        [key: string]: any
+    }
+
+    type LibraryEventState = {
+        libraryStatus: LibraryStatus[]
+        libraryTypes: LibraryType[]
+        library: LibraryData | null
+    }
+
+    const [event, updateEvent] = useReducer(
+        (prev: LibraryEventState, next: Partial<LibraryEventState>) => {
+            return { ...prev, ...next }
+        },
+        {
+            libraryStatus: [],
+            libraryTypes: [],
+            library: null,
+        } as LibraryEventState
+    )
     const formRef = useRef<HTMLFormElement | null>(null)
+    const library = useAppSelector((state) => state.library)
+    const router = useRouter()
+    useEffect(() => {
+        updateEvent({
+            libraryStatus: library.status,
+            libraryTypes: library.types,
+        })
+
+        if (library.status.length && library.types.length) {
+            getLibraryDetails()
+        }
+    }, [library])
     const formSchema = z.object({
         libraryName: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
         diamension: z.string().optional(),
-        floor: z.string().optional(),
-        capacity: z.string().min(2, {
-            message: 'Capacity must be at least 2 characters.',
-        }),
-        statusId: z.string().min(1, {
+        floor: z.number().optional(),
+        capacity: z.number().optional(),
+        statusId: z.number().min(1, {
             message: 'Please select a status.',
         }),
-        typeId: z.string().min(1, {
+        typeId: z.number().min(1, {
             message: 'Please select a type.',
         }),
     })
@@ -50,15 +105,47 @@ export default function EditLibrary() {
         defaultValues: {
             libraryName: '',
             diamension: '',
-            floor: '',
-            capacity: '',
-            statusId: '',
-            typeId: '',
+            floor: 0,
+            capacity: 0,
+            statusId: 0,
+            typeId: 0,
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    const getLibraryDetails = async () => {
+        try {
+            const resp = await LibraryService.getLibrary(id)
+            if (resp.data.success) {
+                const {
+                    libraryName,
+                    typeId,
+                    statusId,
+                    diamension,
+                    floor,
+                    capacity,
+                } = resp.data.data
+                form.reset({
+                    libraryName,
+                    typeId,
+                    statusId,
+                    diamension,
+                    floor,
+                    capacity,
+                })
+                updateEvent({
+                    library: resp.data.data,
+                })
+            }
+        } catch {}
+    }
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const resp = await LibraryService.createLibrary(values)
+            if (resp.data.success) {
+                router.push(`/library/${resp.data.id}`)
+            }
+        } catch (err) {}
     }
 
     const handleSaveClick = () => {
@@ -66,6 +153,7 @@ export default function EditLibrary() {
             formRef.current?.requestSubmit?.()
         }
     }
+    console.log('event.library', event.library)
     return (
         <Container>
             <SubHeaderCard>
@@ -75,8 +163,19 @@ export default function EditLibrary() {
                     </h2>
                 </div>
                 <div className="flex gap-3">
-                    <AddLibraryFacilities />
-                    <AddLibraryLocation />
+                    {event.library && (
+                        <>
+                            <AddLibraryFacilities
+                                library={event.library as any}
+                                getLibraryDetail={getLibraryDetails}
+                            />
+                            <AddLibraryLocation
+                                library={event.library as any}
+                                getLibraryDetail={getLibraryDetails}
+                            />
+                        </>
+                    )}
+
                     <Button onClick={handleSaveClick}>Save</Button>
                 </div>
             </SubHeaderCard>
@@ -115,20 +214,52 @@ export default function EditLibrary() {
                                         <FormItem>
                                             <FormLabel>Status</FormLabel>
                                             <FormControl>
-                                                <Select {...field}>
+                                                <Select
+                                                    {...field}
+                                                    value={String(
+                                                        field.value || ''
+                                                    )}
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Theme" />
+                                                        <SelectValue placeholder="Status" />
                                                     </SelectTrigger>
+
                                                     <SelectContent>
-                                                        <SelectItem value="light">
-                                                            Light
-                                                        </SelectItem>
-                                                        <SelectItem value="dark">
-                                                            Dark
-                                                        </SelectItem>
-                                                        <SelectItem value="system">
-                                                            System
-                                                        </SelectItem>
+                                                        {event.libraryStatus
+                                                            .length > 0 ? (
+                                                            event.libraryStatus.map(
+                                                                (status: {
+                                                                    id: number
+                                                                    name: string
+                                                                }) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            status.id
+                                                                        }
+                                                                        value={String(
+                                                                            status.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            status.name
+                                                                        }
+                                                                    </SelectItem>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="StatusNoRecord"
+                                                                value="null"
+                                                                disabled={true}
+                                                            >
+                                                                No Record found
+                                                            </SelectItem>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -143,20 +274,51 @@ export default function EditLibrary() {
                                         <FormItem>
                                             <FormLabel>Type</FormLabel>
                                             <FormControl>
-                                                <Select {...field}>
+                                                <Select
+                                                    {...field}
+                                                    value={String(
+                                                        field.value || ''
+                                                    )}
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Theme" />
+                                                        <SelectValue placeholder="Type" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="light">
-                                                            Light
-                                                        </SelectItem>
-                                                        <SelectItem value="dark">
-                                                            Dark
-                                                        </SelectItem>
-                                                        <SelectItem value="system">
-                                                            System
-                                                        </SelectItem>
+                                                        {event.libraryTypes
+                                                            .length > 0 ? (
+                                                            event.libraryTypes.map(
+                                                                (type: {
+                                                                    id: number
+                                                                    name: string
+                                                                }) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            type.id
+                                                                        }
+                                                                        value={String(
+                                                                            type.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            type.name
+                                                                        }
+                                                                    </SelectItem>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="TypeNoRecord"
+                                                                value="null"
+                                                                disabled={true}
+                                                            >
+                                                                No Record found
+                                                            </SelectItem>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -188,6 +350,7 @@ export default function EditLibrary() {
                                             <FormLabel>Floor</FormLabel>
                                             <FormControl>
                                                 <Input
+                                                    type="number"
                                                     placeholder="Floor"
                                                     {...field}
                                                 />
@@ -204,6 +367,7 @@ export default function EditLibrary() {
                                             <FormLabel>Capacity</FormLabel>
                                             <FormControl>
                                                 <Input
+                                                    type="number"
                                                     placeholder="Capacity"
                                                     {...field}
                                                 />
@@ -216,14 +380,120 @@ export default function EditLibrary() {
                         </BaseCard>
                     </form>
                 </Form>
-                <BaseCard
-                    cardTitle="Library Location"
-                    cardContentClass="pt-1"
-                ></BaseCard>
+                <BaseCard cardTitle="Library Location" cardContentClass="pt-1">
+                    <div className="grid grid-cols-4 gap-3 w-full">
+                        {(event.library?.locations || []).map(
+                            (location: any, idx: number) => (
+                                <div
+                                    key={location.id ?? idx}
+                                    className="border p-3 rounded-md box-border flex flex-wrap flex-col"
+                                >
+                                    <div className="flex gap-2 justify-between items-center">
+                                        <div className="flex  gap-2 justify-end items-center ">
+                                            <Link
+                                                href={`/library-location/${location.id}`}
+                                            >
+                                                <ExternalLink
+                                                    size={18}
+                                                    className="text-purple-800 cursor-pointer"
+                                                />
+                                            </Link>
+                                            <Edit
+                                                size={18}
+                                                className="text-purple-800 cursor-pointer"
+                                            />
+                                            <Trash2
+                                                size={18}
+                                                className="text-purple-800 cursor-pointer"
+                                            />
+                                        </div>
+                                        <Switch
+                                            checked={location.isActive}
+                                            onCheckedChange={async (
+                                                isChecked
+                                            ) => {
+                                                try {
+                                                    const resp =
+                                                        await LibraryLocationService.updateLibraryLocation(
+                                                            location.id,
+                                                            {
+                                                                isActive:
+                                                                    isChecked,
+                                                            }
+                                                        )
+                                                    if (resp.data.success) {
+                                                        getLibraryDetails()
+                                                    }
+                                                    console.log('resp', resp)
+                                                } catch {}
+                                            }}
+                                            className="cursor-pointer"
+                                        />
+                                    </div>
+                                    <h2 className="font-bold text-xl">
+                                        {location.locationName}
+                                    </h2>
+                                    <div className="flex flex-wrap">
+                                        <span className="text-[14px]">
+                                            {location.address1}
+                                        </span>
+                                        <span className="text-[14px]">
+                                            ,{location.address2}
+                                        </span>
+                                        <span className="text-[14px]">
+                                            ,{location.city.name}
+                                        </span>
+                                        <span className="text-[14px]">
+                                            ,{location.state.name}
+                                        </span>
+                                        <span className="text-[14px]">
+                                            ,{location.country.name}
+                                        </span>
+                                    </div>
+                                    <span className="text-[14px]">
+                                        Pincode : {location.pincode}
+                                    </span>
+                                    <span className="text-[14px]">
+                                        Email : {location.email}
+                                    </span>
+                                    <span className="text-[14px]">
+                                        Phone : {location.country.phonecode}-
+                                        {location.phone}
+                                    </span>
+                                </div>
+                            )
+                        )}
+                    </div>
+                </BaseCard>
                 <BaseCard
                     cardTitle="Library Facitilies"
                     cardContentClass="pt-1"
-                ></BaseCard>
+                >
+                    <div className="grid grid-cols-4 gap-3 w-full">
+                        {(event.library?.facilities || []).map(
+                            (facility: any, idx: number) => (
+                                <div
+                                    key={facility.id ?? idx}
+                                    className="border p-3 rounded-md box-border flex flex-wrap flex-col"
+                                >
+                                    <div className="flex gap-2 justify-end items-center">
+                                        <Edit
+                                            size={20}
+                                            className="text-purple-800 cursor-pointer"
+                                        />
+                                        <Trash2
+                                            size={20}
+                                            className="text-purple-800 cursor-pointer"
+                                        />
+                                    </div>
+                                    <h2 className="font-bold text-xl">
+                                        {facility.name}
+                                    </h2>
+                                </div>
+                            )
+                        )}
+                    </div>
+                </BaseCard>
             </div>
         </Container>
     )

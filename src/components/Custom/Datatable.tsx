@@ -16,12 +16,7 @@ import {
 } from '@tanstack/react-table'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { Checkbox } from '../ui/checkbox'
-import {
-    ChevronLeft,
-    ChevronRight,
-    FileText,
-    Settings,
-} from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileText, Settings } from 'lucide-react'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,12 +26,19 @@ import {
 import Link from 'next/link'
 import { IoMdArrowDropup, IoMdArrowDropdown } from 'react-icons/io'
 
+type ActionType = {
+    name: string
+    type: string
+    url?: string
+}
+
 type DatatableProps<T = unknown> = {
     columns: ColumnDef<T>[]
     data: T[]
     totalCount: number
     allCheck: boolean
     setAllCheck: React.Dispatch<React.SetStateAction<boolean>>
+    rowAction: ActionType[]
 }
 
 const Datatable = <T,>({
@@ -45,6 +47,7 @@ const Datatable = <T,>({
     totalCount,
     allCheck,
     setAllCheck,
+    rowAction = [],
 }: DatatableProps<T>) => {
     const [pageSize, setPageSize] = useState(0)
 
@@ -157,7 +160,14 @@ const Datatable = <T,>({
                                                     />
                                                 )}
                                                 {cell.column.id ===
-                                                    'action' && <RowAction />}
+                                                    'action' && (
+                                                    <RowAction
+                                                        rowAction={rowAction}
+                                                        rowId={String(
+                                                            row.getValue('id')
+                                                        )}
+                                                    />
+                                                )}
                                             </>
                                         ) : (
                                             flexRender(
@@ -253,7 +263,13 @@ const Pagination = () => {
         </div>
     )
 }
-const RowAction = () => {
+const RowAction = ({
+    rowAction,
+    rowId,
+}: {
+    rowAction: ActionType[]
+    rowId: string
+}) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     return (
         <DropdownMenu>
@@ -267,14 +283,28 @@ const RowAction = () => {
 
             {isMenuOpen && (
                 <DropdownMenuContent className="w-full">
-                    <DropdownMenuItem className="w-full">
-                        <Link className="w-full" href={'/index'}>
-                            Edit
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="w-full">
-                        Delete
-                    </DropdownMenuItem>
+                    {rowAction.length &&
+                        rowAction.map((action: ActionType) => {
+                            if (action.type == 'LINK') {
+                                return (
+                                    <DropdownMenuItem key={action.name} className="w-full">
+                                        <Link
+                                            className="w-full"
+                                            href={action.url + rowId}
+                                        >
+                                            {action.name}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )
+                            }
+                            if (action.type == 'DELETE') {
+                                return (
+                                    <DropdownMenuItem key={action.name} className="w-full">
+                                        {action.name}
+                                    </DropdownMenuItem>
+                                )
+                            }
+                        })}
                 </DropdownMenuContent>
             )}
         </DropdownMenu>

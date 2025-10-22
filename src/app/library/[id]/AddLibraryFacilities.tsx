@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -27,18 +27,31 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import Image from 'next/image'
+import LibraryService from '@/services/LibraryService'
 
-const AddLibraryFacilities = () => {
+type LibraryProps = {
+    id: string
+    libraryName: string
+    locations: []
+}
+
+const AddLibraryFacilities = ({
+    library,
+    getLibraryDetail,
+}: {
+    library: LibraryProps
+    getLibraryDetail: () => Promise<any>
+}) => {
     const [open, setOpen] = useState<boolean>(false)
     const formSchema = z.object({
         libraryName: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
-        libraryId: z.string().min(1, {
-            message: 'Please select a status.',
+        libraryId: z.number().min(1, {
+            message: 'Please select a library.',
         }),
-        libraryLocationId: z.string().min(1, {
-            message: 'Please select a status.',
+        libraryLocationId: z.number().min(1, {
+            message: 'Please select a library location.',
         }),
         name: z.string().min(2, {
             message: 'Facility Name must be at least 2 characters.',
@@ -51,16 +64,33 @@ const AddLibraryFacilities = () => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             libraryName: '',
-            libraryId: '',
-            libraryLocationId: '',
+            libraryId: 0,
+            libraryLocationId: 0,
             name: '',
             description: '',
             imageUrl: '',
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    useEffect(() => {
+        form.reset({
+            libraryId: Number(library.id),
+            libraryName: library.libraryName,
+            libraryLocationId: 0,
+            name: '',
+            description: '',
+            imageUrl: '',
+        })
+    }, [library])
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const resp = await LibraryService.createLibraryFacility(values)
+            if (resp.data.success) {
+                getLibraryDetail()
+                setOpen(false)
+            }
+        } catch {}
     }
     return (
         <Dialog onOpenChange={setOpen} open={open}>
@@ -91,20 +121,59 @@ const AddLibraryFacilities = () => {
                                                     Library Location
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Select {...field}>
+                                                    <Select
+                                                        {...field}
+                                                        value={
+                                                            field.value
+                                                                ? String(
+                                                                      field.value
+                                                                  )
+                                                                : ''
+                                                        }
+                                                        onValueChange={(
+                                                            value
+                                                        ) =>
+                                                            field.onChange(
+                                                                Number(value)
+                                                            )
+                                                        }
+                                                    >
                                                         <SelectTrigger>
-                                                            <SelectValue placeholder="Theme" />
+                                                            <SelectValue placeholder="Location" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="light">
-                                                                Light
-                                                            </SelectItem>
-                                                            <SelectItem value="dark">
-                                                                Dark
-                                                            </SelectItem>
-                                                            <SelectItem value="system">
-                                                                System
-                                                            </SelectItem>
+                                                            {library.locations
+                                                                .length > 0 ? (
+                                                                library.locations.map(
+                                                                    (location: {
+                                                                        locationName: string
+                                                                        id: number
+                                                                    }) => {
+                                                                        return (
+                                                                            <SelectItem
+                                                                                key={
+                                                                                    location.id
+                                                                                }
+                                                                                value={String(
+                                                                                    location.id
+                                                                                )}
+                                                                            >
+                                                                                {
+                                                                                    location.locationName
+                                                                                }
+                                                                            </SelectItem>
+                                                                        )
+                                                                    }
+                                                                )
+                                                            ) : (
+                                                                <SelectItem
+                                                                    value="LocationNotFound"
+                                                                    key="LocationNotFound"
+                                                                >
+                                                                    No record
+                                                                    found
+                                                                </SelectItem>
+                                                            )}
                                                         </SelectContent>
                                                     </Select>
                                                 </FormControl>
@@ -117,7 +186,9 @@ const AddLibraryFacilities = () => {
                                         name="name"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Facility Name</FormLabel>
+                                                <FormLabel>
+                                                    Facility Name
+                                                </FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         placeholder="Facility Name"
@@ -166,11 +237,11 @@ const AddLibraryFacilities = () => {
                                             </FormItem>
                                         )}
                                     />
-                                    <Image
+                                    {/* <Image
                                         className="w-full h-full border-2 border-purple-600"
                                         src="https://media.istockphoto.com/id/1265024528/photo/no-better-adventure-buddy.webp?a=1&b=1&s=612x612&w=0&k=20&c=tStWgNSFBAGPyu4gfJfDEjqMPDnvgqWUkIPyZYGS090="
                                         alt="Facility Image"
-                                    />
+                                    /> */}
                                 </div>
                                 <div className="w-full flex justify-end">
                                     <Button type="submit">Add</Button>

@@ -6,31 +6,34 @@ import SubHeaderCard from '@/components/Custom/SubHeaderCard'
 import Container from '@/components/layout/Container'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import LibraryLocationService from '@/services/LibraryLocationService'
 import Link from 'next/link'
+import { useEffect, useReducer } from 'react'
 
-type TableRow = {
-    checkbox: boolean
-    id: number
-    col_1: string
-    col_2: string
-    col_3: string
-    col_4: string
-    col_5: string
-    col_6: string
-}
+export default function LibraryLocation() {
+    const [event, updateEvent] = useReducer(
+        (prev, next) => {
+            return { ...prev, ...next }
+        },
+        {
+            libraryLocations: [],
+        }
+    )
 
-const TableData: TableRow[] = Array.from({ length: 30 }, (_, index) => ({
-    checkbox: false,
-    id: index + 1,
-    col_1: `Data ${index + 1}-1`,
-    col_2: `Data ${index + 1}-2`,
-    col_3: `Data ${index + 1}-3`,
-    col_4: `Data ${index + 1}-4`,
-    col_5: `Data ${index + 1}-5`,
-    col_6: `Data ${index + 1}-6`,
-}))
+    const getLibraryLocation = async () => {
+        try {
+            const resp = await LibraryLocationService.getLibraryLocations()
+            if (resp.data.success) {
+                updateEvent({
+                    libraryLocations: resp.data.data,
+                })
+            }
+        } catch {}
+    }
 
-export default function Library() {
+    useEffect(() => {
+        getLibraryLocation()
+    }, [])
     return (
         <Container>
             <SubHeaderCard>
@@ -41,7 +44,9 @@ export default function Library() {
                 </div>
                 <div>
                     <Link href={'/library-location/create'}>
-                        <Button variant={'outline'} className='bg-white'>Add Library Location</Button>
+                        <Button variant={'outline'} className="bg-white">
+                            Add Library Location
+                        </Button>
                     </Link>
                 </div>
             </SubHeaderCard>
@@ -53,11 +58,15 @@ export default function Library() {
                     </div>
                 </div>
                 <Datatable
-                    columns={assets.data.Columns}
-                    data={TableData}
+                    columns={assets.data.columns.LibraryLocationColumns(getLibraryLocation)}
+                    data={event.libraryLocations}
                     totalCount={0}
                     allCheck={false}
                     setAllCheck={() => {}}
+                    rowAction={[
+                        { name: 'Edit', type: 'LINK', url: '/library-location/' },
+                        { name: 'Delete', type: 'DELETE' },
+                    ]}
                 />
             </BaseCard>
         </Container>
