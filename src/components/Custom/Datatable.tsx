@@ -214,7 +214,7 @@ const Datatable = <T,>({
 
 const Pagination = () => {
     return (
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-3 flex-wrap ">
             <span>Showing 151 to 180 of 490</span>
             <div className="flex justify-end gap-2 items-center">
                 <Link
@@ -287,7 +287,10 @@ const RowAction = ({
                         rowAction.map((action: ActionType) => {
                             if (action.type == 'LINK') {
                                 return (
-                                    <DropdownMenuItem key={action.name} className="w-full">
+                                    <DropdownMenuItem
+                                        key={action.name}
+                                        className="w-full"
+                                    >
                                         <Link
                                             className="w-full"
                                             href={action.url + rowId}
@@ -299,7 +302,10 @@ const RowAction = ({
                             }
                             if (action.type == 'DELETE') {
                                 return (
-                                    <DropdownMenuItem key={action.name} className="w-full">
+                                    <DropdownMenuItem
+                                        key={action.name}
+                                        className="w-full"
+                                    >
                                         {action.name}
                                     </DropdownMenuItem>
                                 )

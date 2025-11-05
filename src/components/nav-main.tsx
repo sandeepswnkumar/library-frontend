@@ -46,7 +46,7 @@ export function NavMain({
                         >
                             <SidebarMenuItem>
                                 <CollapsibleTrigger asChild>
-                                    <SidebarMenuButton tooltip={item.title}>
+                                    <SidebarMenuButton tooltip={item.title} className='hover:bg-purple-800' >
                                         {item.icon && <item.icon />}
                                         <span>{item.title}</span>
                                         {item.items &&
@@ -75,7 +75,7 @@ export function NavMain({
                             </SidebarMenuItem>
                         </Collapsible>
                     ) : (
-                        <SidebarMenuButton key={item.title} tooltip={item.title} asChild>
+                        <SidebarMenuButton key={item.title} tooltip={item.title} asChild className='hover:bg-purple-700 hover:text-white rounded-xs'>
                             <Link href={item.url}>
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>

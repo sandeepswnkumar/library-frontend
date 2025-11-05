@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/popover'
 import LibraryLocationService from '@/services/LibraryLocationService'
 import { useParams } from 'next/navigation'
+import { LibraryLocation } from '@/types/LibraryLocation'
 
 const frameworks = [
     {
@@ -69,7 +70,7 @@ const frameworks = [
 ]
 
 type LibraryLocationData = {
-    [key: string]: any
+    [key: string]: LibraryLocation
 }
 
 type LibraryEventState = {
@@ -215,7 +216,7 @@ export default function EditLibraryLocation() {
             <SubHeaderCard>
                 <div>
                     <h2 className="font-bold uppercase text-muted-foreground">
-                        Edit Libaray Location
+                        Edit Branch
                     </h2>
                 </div>
                 <div>
@@ -234,7 +235,7 @@ export default function EditLibraryLocation() {
                             cardClass="mb-0"
                             cardContentClass="pt-1"
                         >
-                            <div className="grid grid-cols-4 gap-6">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 <FormField
                                     control={form.control}
                                     name="libraryId"
@@ -659,7 +660,10 @@ export default function EditLibraryLocation() {
                         >
                             <div className="grid grid-cols-4 gap-3 w-full">
                                 {(event.libraryLocation?.facilities || []).map(
-                                    (facility: any, idx: number) => (
+                                    (
+                                        facility: { id: string; name: string },
+                                        idx: number
+                                    ) => (
                                         <div
                                             key={facility.id ?? idx}
                                             className="border p-3 rounded-md box-border flex flex-wrap flex-col"

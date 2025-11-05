@@ -1,11 +1,11 @@
-import StatusBadge from '@/components/Custom/StatusBadge'
 import { Switch } from '@/components/ui/switch'
 import LibraryLocationService from '@/services/LibraryLocationService'
+import { LibraryLocation } from '@/types/LibraryLocation'
 import type { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 
 export const LibraryLocationColumns = (
-    getLibraryLocation: () => Promise<any>
+    getLibraryLocation: () => Promise<LibraryLocation>
 ): ColumnDef<unknown>[] => {
     return [
         {
@@ -24,7 +24,7 @@ export const LibraryLocationColumns = (
                         checked={Boolean(getValue())}
                         onCheckedChange={async (isChecked) => {
                             try {
-                                let rowData = row?.original as any
+                                const rowData = row?.original as LibraryLocation
                                 if (!rowData?.id) return false
                                 const resp =
                                     await LibraryLocationService.updateLibraryLocation(
@@ -52,9 +52,9 @@ export const LibraryLocationColumns = (
             header: 'Library Name',
             enableSorting: true,
             cell: ({ getValue, row }) => {
-                let rowData = row?.original as any
+                const rowData = row?.original as LibraryLocation
                 if (!rowData?.id) return false
-                   return <Link className='hover:underline' href={`/library-location/${rowData?.id}`}>{String(getValue() ?? '')}</Link>
+                   return <Link className='hover:underline' href={`/branch/${rowData?.id}`}>{String(getValue() ?? '')}</Link>
             },
         },
         {

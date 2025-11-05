@@ -3,7 +3,7 @@ import { Library } from '@/types/LibraryType'
 import type { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 
-export const LibraryColumns: ColumnDef<unknown>[] = [
+export const BookingColumns: ColumnDef<unknown>[] = [
     {
         accessorKey: 'checkbox',
         header: 'checkbox',

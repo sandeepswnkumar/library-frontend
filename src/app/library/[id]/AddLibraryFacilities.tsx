@@ -51,7 +51,7 @@ const AddLibraryFacilities = ({
             message: 'Please select a library.',
         }),
         libraryLocationId: z.number().min(1, {
-            message: 'Please select a library location.',
+            message: 'Please select a branch.',
         }),
         name: z.string().min(2, {
             message: 'Facility Name must be at least 2 characters.',
@@ -118,7 +118,7 @@ const AddLibraryFacilities = ({
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>
-                                                    Library Location
+                                                    Branch
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Select

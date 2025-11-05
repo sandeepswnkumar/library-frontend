@@ -16,7 +16,7 @@ export default function Home() {
     return (
         <Container>
             <SubHeaderCard>
-                <h2 className="font-semibold">Title</h2>
+                <h2 className="font-semibold">Dashboard</h2>
                 <div>
                     <Link href={'/library/create'}>
                         <Button variant={'outline'}>Add Library</Button>

@@ -1,10 +1,15 @@
 export type AdminLoginType = {
-    email: string;
-    password: string;
-     userType? : number | undefined ;
-};
+    email: string
+    password: string
+}
 export type UserLoginType = {
-    mobile: string;
-    pin: number;
-    userType? : number | undefined ;
-};
+    phone: number | string
+    mpin: number | string
+}
+
+export type UserRegister = {
+    phone: number | string
+    otp?: number | string
+    mpin?: number | string
+    confirmMpin?: number | string
+}

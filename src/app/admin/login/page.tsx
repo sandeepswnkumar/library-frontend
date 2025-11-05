@@ -48,7 +48,6 @@ export default function AdminLogin() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
         try {
             const resp = await AuthService.adminLogin(values)
             window.localStorage.setItem('_token', resp.data.data.token)

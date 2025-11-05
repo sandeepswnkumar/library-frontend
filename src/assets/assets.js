@@ -5,6 +5,7 @@ import { Columns } from "./data/columns/Columns"
 import { SidebarMenu } from "./data/SidebarMenu"
 import { LibraryColumns } from "./data/columns/LibraryColumns"
 import { LibraryLocationColumns } from "./data/columns/LibraryLocationColumns"
+import { BookingColumns } from "./data/columns/BookingColumns"
 
 export const assets = {
     LoginBg,
@@ -12,7 +13,8 @@ export const assets = {
         columns : {
             Columns,
             LibraryColumns,
-            LibraryLocationColumns
+            LibraryLocationColumns,
+            BookingColumns
 
         },
         SidebarMenu

@@ -32,6 +32,7 @@ import { Switch } from '@/components/ui/switch'
 import { Edit, ExternalLink, Trash2 } from 'lucide-react'
 import LibraryLocationService from '@/services/LibraryLocationService'
 import Link from 'next/link'
+import { Library } from '@/types/LibraryType'
 
 export default function EditLibrary() {
     // const id = (props as { params?: { id?: string } })?.params?.id
@@ -53,7 +54,7 @@ export default function EditLibrary() {
     }
     type LibraryData = {
         locations?: Location[]
-        [key: string]: any
+        [key: string]: unknown
     }
 
     type LibraryEventState = {
@@ -166,7 +167,7 @@ export default function EditLibrary() {
                     {event.library && (
                         <>
                             <AddLibraryFacilities
-                                library={event.library as any}
+                                library={event.library as Library}
                                 getLibraryDetail={getLibraryDetails}
                             />
                             <AddLibraryLocation
@@ -190,7 +191,7 @@ export default function EditLibrary() {
                             cardTitle="Basic Information"
                             cardContentClass="pt-1"
                         >
-                            <div className="grid grid-cols-4 gap-6">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 <FormField
                                     control={form.control}
                                     name="libraryName"
@@ -380,7 +381,7 @@ export default function EditLibrary() {
                         </BaseCard>
                     </form>
                 </Form>
-                <BaseCard cardTitle="Library Location" cardContentClass="pt-1">
+                <BaseCard cardTitle="Branch" cardContentClass="pt-1">
                     <div className="grid grid-cols-4 gap-3 w-full">
                         {(event.library?.locations || []).map(
                             (location: any, idx: number) => (
@@ -391,7 +392,7 @@ export default function EditLibrary() {
                                     <div className="flex gap-2 justify-between items-center">
                                         <div className="flex  gap-2 justify-end items-center ">
                                             <Link
-                                                href={`/library-location/${location.id}`}
+                                                href={`/branch/${location.id}`}
                                             >
                                                 <ExternalLink
                                                     size={18}

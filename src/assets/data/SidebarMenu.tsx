@@ -19,8 +19,8 @@ export const SidebarMenu = [
     },
     {
         id : '',
-        title: 'Library Location',
-        url: '/library-location',
+        title: 'Branch',
+        url: '/branch',
         icon : Home,
         isActive : false,
         items: [],

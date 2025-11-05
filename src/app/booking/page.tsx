@@ -6,46 +6,47 @@ import SubHeaderCard from '@/components/Custom/SubHeaderCard'
 import Container from '@/components/layout/Container'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import LibraryLocationService from '@/services/LibraryLocationService'
+import BookingService from '@/services/BookingService'
 import Link from 'next/link'
 import { useEffect, useReducer } from 'react'
 
-export default function LibraryLocation() {
+export default function Booking() {
     const [event, updateEvent] = useReducer(
         (prev, next) => {
             return { ...prev, ...next }
         },
         {
-            libraryLocations: [],
+            bookings: [],
         }
     )
 
-    const getLibraryLocation = async () => {
+    const getbookings = async () => {
         try {
-            const resp = await LibraryLocationService.getLibraryLocations()
+            const resp = await BookingService.getBookings()
             if (resp.data.success) {
-                updateEvent({
-                    libraryLocations: resp.data.data,
-                })
+                updateEvent({ bookings: resp.data.data })
             }
         } catch {}
     }
 
     useEffect(() => {
-        getLibraryLocation()
+        getbookings()
     }, [])
     return (
         <Container>
             <SubHeaderCard>
-                <div>
-                    <h2 className="font-bold uppercase text-muted-foreground">
-                        Libaray Location
-                    </h2>
-                </div>
-                <div>
-                    <Link href={'/library-location/create'}>
+                <h2 className="font-bold uppercase text-muted-foreground">
+                    Bookings
+                </h2>
+                <div className='flex  gap-2'>
+                    <Link href={'/booking/create'}>
                         <Button variant={'outline'} className="bg-white">
-                            Add Library Location
+                            New Booking
+                        </Button>
+                    </Link>
+                    <Link href={'/booking/book-now'}>
+                        <Button variant={'outline'} className="bg-white">
+                            Book Now
                         </Button>
                     </Link>
                 </div>
@@ -58,13 +59,13 @@ export default function LibraryLocation() {
                     </div>
                 </div>
                 <Datatable
-                    columns={assets.data.columns.LibraryLocationColumns(getLibraryLocation)}
-                    data={event.libraryLocations}
+                    columns={assets.data.columns.BookingColumns}
+                    data={event.bookings}
                     totalCount={0}
                     allCheck={false}
                     setAllCheck={() => {}}
                     rowAction={[
-                        { name: 'Edit', type: 'LINK', url: '/library-location/' },
+                        { name: 'Edit', type: 'LINK', url: '/booking/' },
                         { name: 'Delete', type: 'DELETE' },
                     ]}
                 />

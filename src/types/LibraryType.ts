@@ -1,3 +1,5 @@
+import { LibraryLocation } from "./LibraryLocation"
+
 export type LibraryCreateType = {
     libraryName: string
     diamension?: string
@@ -16,6 +18,27 @@ export type LibraryUpdateType = {
     typeId?: number | string
 }
 
+export type Library = {
+    id:number
+    libraryName: string
+    libraryId: number
+    locationName: string
+    email: string
+    phone: string
+    address1: string
+    address2?: string
+    cityId: number
+    stateId: number
+    countryId: number
+    pincode: string
+    latitude?: string
+    longitude?: string
+    mapUrl?: string
+    isActive?:boolean
+    locations : LibraryLocation
+    fa
+}
+
 export type LibraryLocationCreateType = {
     libraryName: string
     libraryId: number
@@ -31,7 +54,7 @@ export type LibraryLocationCreateType = {
     latitude?: string
     longitude?: string
     mapUrl?: string
-    isActive?:Boolean
+    isActive?:boolean
 }
 export type LibraryLocationUpdateType = {
     libraryName?: string
@@ -48,7 +71,7 @@ export type LibraryLocationUpdateType = {
     latitude?: string
     longitude?: string
     mapUrl?: string
-    isActive?:Boolean
+    isActive?:boolean
 }
 
 export type LibraryFacilitiesType = {

@@ -148,7 +148,7 @@ export default function CreateLibraryLocation() {
             <SubHeaderCard>
                 <div>
                     <h2 className="font-bold uppercase text-muted-foreground">
-                        Add Libaray Location
+                        Add Branch
                     </h2>
                 </div>
                 <div>
@@ -167,7 +167,7 @@ export default function CreateLibraryLocation() {
                             cardClass="mb-0"
                             cardContentClass="pt-1"
                         >
-                            <div className="grid grid-cols-4 gap-6">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 <FormField
                                     control={form.control}
                                     name="libraryId"

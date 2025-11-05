@@ -167,11 +167,11 @@ const AddLibraryLocation = ({
                 className="bg-white"
                 onClick={() => setOpen(true)}
             >
-                Add Library Location
+                Add Branch
             </Button>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add Library Location</DialogTitle>
+                    <DialogTitle>Add Branch</DialogTitle>
                     <div className="max-h-[400px] overflow-auto px-3">
                         <Form {...form}>
                             <form

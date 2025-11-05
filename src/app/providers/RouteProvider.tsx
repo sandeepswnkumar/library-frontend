@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { setUser } from '@/lib/features/auth/AuthSlice'
 import AuthService from '@/services/AuthService'
@@ -17,6 +17,7 @@ import {
     setCountry,
     setStates,
 } from '@/lib/features/MiscellaneousSlice'
+import userTypeEnum from '@/Enums/UserTypeEnum'
 
 export default function RouteProvider({
     children,
@@ -24,6 +25,7 @@ export default function RouteProvider({
     children?: React.ReactNode
 }) {
     const pathname = usePathname()
+    const router = useRouter()
     const auth = useAppSelector((state) => state.auth)
     const dispatch = useAppDispatch()
     const fetchedRef = useRef(false)
@@ -37,13 +39,19 @@ export default function RouteProvider({
     const getCurrentUser = async () => {
         try {
             const resp = await AuthService.getCurrentUser()
+
             if (resp?.data?.success) {
                 dispatch(setUser(resp.data.data))
                 getInitalData()
+                if (
+                    resp.data?.data?.userTypeId == userTypeEnum.USER &&
+                    !resp.data?.data?.isOnboardingCompleted
+                ) {
+                    router.push('/onboarding')
+                }
             }
         } catch (err) {
             console.log('error', err)
-            // ignore or handle error
         } finally {
             isLoading.current = false
             fetchedRef.current = true
@@ -86,7 +94,11 @@ export default function RouteProvider({
     }
 
     useEffect(() => {
-        if (!fetchedRef.current && (!auth || !auth.currentUser)) {
+        if (
+            !fetchedRef.current &&
+            (!auth || !auth.currentUser) &&
+            localStorage.getItem('_token')
+        ) {
             isLoading.current = true
             getCurrentUser()
         }

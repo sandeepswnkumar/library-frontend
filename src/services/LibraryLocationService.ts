@@ -10,6 +10,13 @@ class LibraryLocationService {
     async getLibraryLocations() {
         return await AxiosService.get('library-location')
     }
+    async getLibraryLocationsByLibrary(libraryId?: number) {
+        // If backend supports filtering by query param, use it. Otherwise this will return all locations.
+        if (typeof libraryId !== 'undefined' && libraryId !== null) {
+            return await AxiosService.get('library-location', { params: { libraryId } })
+        }
+        return await AxiosService.get('library-location')
+    }
     async getLibraryLocation(id:number) {
         return await AxiosService.get(`library-location/${id}`)
     }

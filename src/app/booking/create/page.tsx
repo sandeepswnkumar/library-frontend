@@ -26,8 +26,12 @@ import {
 import LibraryService from '@/services/LibraryService'
 import { useAppSelector } from '@/lib/hooks'
 import { useRouter } from 'next/navigation'
+import BookingService from '@/services/BookingService'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { IndianRupee } from 'lucide-react'
 
-export default function CreateLibrary() {
+export default function CreateBooking() {
     const [event, updateEvent] = useReducer(
         (prev, next) => {
             return { ...prev, ...next }
@@ -47,35 +51,46 @@ export default function CreateLibrary() {
         })
     }, [libraryState])
     const formSchema = z.object({
-        libraryName: z.string().min(2, {
+        libraryId: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
-        diamension: z.string().optional(),
-        floor: z.number().optional(),
-        capacity: z.number().optional(),
-        statusId: z.number().min(1, {
-            message: 'Please select a status.',
+        libraryLocationId: z.string().min(2, {
+            message: 'Branch must be at least 2 characters.',
         }),
-        typeId: z.number().min(1, {
-            message: 'Please select a type.',
+        roomType: z.string().min(2, {
+            message: 'Room Type must be at least 2 characters.',
         }),
+        unit: z.string().min(2, {
+            message: 'Booking Type must be at least 2 characters.',
+        }),
+        noOfUnit: z
+            .number()
+            .lt(1, {
+                message: 'No of month will be not be less then 1',
+            })
+            .gt(12, {
+                message: 'No of month will be not be greater then 12',
+            }),
+        startDate: z.string(),
+        startTime: z.string(),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            libraryName: '',
-            diamension: '',
-            floor: 0,
-            capacity: 0,
-            statusId: 0,
-            typeId: 0,
+            libraryId: '',
+            libraryLocationId: '',
+            roomType: '',
+            unit: '',
+            noOfUnit: 0,
+            startDate: '',
+            startTime: '',
         },
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const resp = await LibraryService.createLibrary(values)
+            const resp = await BookingService.createBooking(values)
             if (resp.data.success) {
                 router.push(`/library/${resp.data.id}`)
             }
@@ -92,7 +107,7 @@ export default function CreateLibrary() {
             <SubHeaderCard>
                 <div>
                     <h2 className="font-bold uppercase text-muted-foreground">
-                        Add Libaray
+                        New Bookings
                     </h2>
                 </div>
                 <div>
@@ -107,32 +122,17 @@ export default function CreateLibrary() {
                         className="space-y-8"
                     >
                         <BaseCard
-                            cardTitle="Basic Information"
+                            cardClass="mb-4"
+                            cardTitle="Booking Information"
                             cardContentClass="pt-1"
                         >
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 <FormField
                                     control={form.control}
-                                    name="libraryName"
+                                    name="libraryId"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Library Name</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    placeholder="Library Name"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="statusId"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Status</FormLabel>
                                             <FormControl>
                                                 <Select
                                                     {...field}
@@ -146,7 +146,43 @@ export default function CreateLibrary() {
                                                     }
                                                 >
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Status" />
+                                                        <SelectValue placeholder="Library Name" />
+                                                    </SelectTrigger>
+
+                                                    <SelectContent>
+                                                        <SelectItem
+                                                            key="AC"
+                                                            value="AC"
+                                                        >
+                                                            AC
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="libraryLocationId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Branch</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    {...field}
+                                                    value={String(
+                                                        field.value || ''
+                                                    )}
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Branch" />
                                                     </SelectTrigger>
 
                                                     <SelectContent>
@@ -189,10 +225,10 @@ export default function CreateLibrary() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="typeId"
+                                    name="roomType"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Type</FormLabel>
+                                            <FormLabel>Room Type</FormLabel>
                                             <FormControl>
                                                 <Select
                                                     {...field}
@@ -206,39 +242,16 @@ export default function CreateLibrary() {
                                                     }
                                                 >
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Type" />
+                                                        <SelectValue placeholder="Room Type" />
                                                     </SelectTrigger>
+
                                                     <SelectContent>
-                                                        {event.libraryTypes
-                                                            .length > 0 ? (
-                                                            event.libraryTypes.map(
-                                                                (type: {
-                                                                    id: number
-                                                                    name: string
-                                                                }) => (
-                                                                    <SelectItem
-                                                                        key={
-                                                                            type.id
-                                                                        }
-                                                                        value={String(
-                                                                            type.id
-                                                                        )}
-                                                                    >
-                                                                        {
-                                                                            type.name
-                                                                        }
-                                                                    </SelectItem>
-                                                                )
-                                                            )
-                                                        ) : (
-                                                            <SelectItem
-                                                                key="TypeNoRecord"
-                                                                value="null"
-                                                                disabled={true}
-                                                            >
-                                                                No Record found
-                                                            </SelectItem>
-                                                        )}
+                                                        <SelectItem
+                                                            key="AC"
+                                                            value="AC"
+                                                        >
+                                                            AC
+                                                        </SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -248,13 +261,51 @@ export default function CreateLibrary() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="diamension"
+                                    name="unit"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Diamention</FormLabel>
+                                            <FormLabel>Booking Type</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    {...field}
+                                                    value={String(
+                                                        field.value || ''
+                                                    )}
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Booking Type" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem
+                                                            key="10"
+                                                            value="10"
+                                                        >
+                                                            Monthly
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="noOfUnit"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>No Of Month</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Diamention"
+                                                    type="number"
+                                                    placeholder="No Of Month"
+                                                    min="1"
+                                                    max="12"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -264,14 +315,14 @@ export default function CreateLibrary() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="floor"
+                                    name="startDate"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Floor</FormLabel>
+                                            <FormLabel>Start Date</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    type="number"
-                                                    placeholder="Floor"
+                                                    type="date"
+                                                    placeholder="Start Date"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -281,14 +332,14 @@ export default function CreateLibrary() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="capacity"
+                                    name="startTime"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Capacity</FormLabel>
+                                            <FormLabel>Start Time</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    type="number"
-                                                    placeholder="Capacity"
+                                                    type="time"
+                                                    placeholder="Start Date"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -298,6 +349,55 @@ export default function CreateLibrary() {
                                 />
                             </div>
                         </BaseCard>
+                        <div className="w-full flex gap-4">
+                            <BaseCard
+                                cardTitle="Seat Selecation"
+                                cardContentClass="pt-1 "
+                            >
+                                <div className="flex flex-wrap justify-around items-start gap-2">
+                                    {new Array(500).fill('-').map((_, i) => (
+                                        <div key={"seat + " + i}>
+                                            <Label
+                                                htmlFor={'r' + (i + 1)}
+                                                className=" bg-purple-600 p-2 text-xs min-w-8 min-h-8 text-white rounded-sm border flex justify-center items-center"
+                                            >
+                                                {"R" + (i+1)}
+                                            </Label>
+                                            <Checkbox
+                                                id={'r' + (i + 1)}
+                                                className="hidden"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </BaseCard>
+                            <BaseCard
+                                cardTitle="Payment Information"
+                                cardContentClass="pt-1 "
+                            >
+                                <div className="flex flex-col gap-2">
+                                    <div className='flex justify-between'>
+                                        <span>Booking Amount</span>
+                                        <span className='flex items-center'>
+                                            <IndianRupee size={14} /><span>3540.00</span>
+                                        </span>
+                                    </div>
+                                    <div className='flex justify-between text-purple-600'>
+                                        <span>Discount (0%)</span>
+                                        <span className='flex items-center'>
+                                            -<IndianRupee size={14} /><span>00.00</span>
+                                        </span>
+                                    </div>
+                                    <hr />
+                                    <div className='flex justify-between'>
+                                        <span>Total Amount</span>
+                                        <span className='flex items-center'>
+                                            <IndianRupee size={14} /><span>3540.00</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </BaseCard>
+                        </div>
                     </form>
                 </Form>
             </div>

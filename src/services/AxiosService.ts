@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from 'sonner'
 
 const AxiosService = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_HOST,
@@ -28,14 +29,17 @@ AxiosService.interceptors.response.use(
     function (response) {
         // Any status code that lie within the range of 2xx cause this function to trigger
         // Do something with response data
+        console.log('success', response)
+        toast.success(response.data.message)
         return response
     },
     async function (error) {
         const originalRequest = error.config
+        // console.log("location.pathname", location.pathname)
         if (
             error.response.status === 401 &&
             !originalRequest._retry &&
-            location.pathname !== '/admin/login'
+            !['admin/login','/admin/login', '/login', 'login'].includes(location.pathname)
         ) {
             originalRequest._retry = true
             try {
@@ -47,12 +51,22 @@ AxiosService.interceptors.response.use(
                 return AxiosService(originalRequest)
             } catch (refreshError) {
                 originalRequest._retry = false
-                localStorage.getItem('login-route')
-                window.location.replace('/admin/login')
-                console.log('refreshError', refreshError)
+                const loginRoute =
+                    localStorage.getItem('login-route') || '/login'
+                window.location.replace(loginRoute)
             }
+        } else {
+            if (Array.isArray(error.response.data.message)) {
+                error.response.data.message.map(
+                    (message: { location: string; msg: string }) =>
+                        toast.error(message.msg)
+                )
+            } else {
+                toast.error(error.response.data.message)
+            }
+            console.log('error', error)
         }
-        return Promise.reject(error)
+        return error
     }
 )
 

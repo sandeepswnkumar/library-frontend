@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import StoreProvider from './StoreProvider'
 import RouteProvider from './providers/RouteProvider'
-// import { useEffect } from 'react'
+import { Toaster } from '@/components/ui/sonner'
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -34,6 +34,7 @@ export default function RootLayout({
                 <StoreProvider>
                     <RouteProvider>{children}</RouteProvider>
                 </StoreProvider>
+                <Toaster />
             </body>
         </html>
     )
