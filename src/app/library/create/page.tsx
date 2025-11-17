@@ -50,7 +50,7 @@ export default function CreateLibrary() {
         libraryName: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
-        diamension: z.string().optional(),
+        dimension: z.number().optional(),
         floor: z.number().optional(),
         capacity: z.number().optional(),
         statusId: z.number().min(1, {
@@ -65,10 +65,10 @@ export default function CreateLibrary() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             libraryName: '',
-            diamension: '',
+            dimension: 0,
             floor: 0,
             capacity: 0,
-            statusId: 0,
+            statusId: 20003,
             typeId: 0,
         },
     })
@@ -77,7 +77,7 @@ export default function CreateLibrary() {
         try {
             const resp = await LibraryService.createLibrary(values)
             if (resp.data.success) {
-                router.push(`/library/${resp.data.id}`)
+                router.push(`/library/${resp.data.data.id}`)
             }
         } catch (err) {}
     }
@@ -127,7 +127,7 @@ export default function CreateLibrary() {
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="statusId"
                                     render={({ field }) => (
@@ -186,7 +186,7 @@ export default function CreateLibrary() {
                                             <FormMessage />
                                         </FormItem>
                                     )}
-                                />
+                                /> */}
                                 <FormField
                                     control={form.control}
                                     name="typeId"
@@ -248,7 +248,7 @@ export default function CreateLibrary() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="diamension"
+                                    name="dimension"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Diamention</FormLabel>

@@ -1,44 +1,74 @@
-import { Home } from "lucide-react";
+import { LayoutDashboard } from 'lucide-react'
+import { Home } from 'lucide-react'
+import { BookCopy } from 'lucide-react'
+import { UserRound } from 'lucide-react'
+import { MapPinHouse } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
 
 export const SidebarMenu = [
     {
-        id : '',
+        id: '',
         title: 'Dashboard',
         url: '/',
-        icon : Home,
-        isActive : false,
+        icon: LayoutDashboard,
+        isActive: false,
         items: [],
     },
     {
-        id : '',
+        id: '',
+        title: 'Home',
+        url: '/home',
+        icon: Home,
+        isActive: false,
+        items: [],
+    },
+    {
+        id: '',
         title: 'Library',
         url: '/library',
-        icon : Home,
-        isActive : false,
+        icon: BookCopy,
+        isActive: false,
         items: [],
     },
     {
-        id : '',
+        id: '',
         title: 'Branch',
         url: '/branch',
-        icon : Home,
-        isActive : false,
+        icon: MapPinHouse,
+        isActive: false,
         items: [],
     },
     {
-        id : '',
+        id: '',
         title: 'User',
         url: '/users',
-        icon : Home,
-        isActive : false,
+        icon: UserRound,
+        isActive: false,
         items: [],
     },
     {
-        id : '',
+        id: '',
         title: 'Booking',
         url: '/booking',
-        icon : Home,
-        isActive : false,
+        icon: CalendarDays,
+        isActive: false,
         items: [],
+    },
+    {
+        id: '',
+        title: 'Configurations',
+        url: '/configurations',
+        icon: CalendarDays,
+        isActive: false,
+        items: [
+            {
+                id: '',
+                title: 'Library',
+                url: '/configurations/library',
+                icon: CalendarDays,
+                isActive: false,
+                items: [],
+            },
+        ],
     },
 ]

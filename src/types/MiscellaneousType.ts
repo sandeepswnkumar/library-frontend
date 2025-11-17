@@ -10,3 +10,7 @@ export type CountryType = {
     id: string
     name: string
 }
+export type RoomType = {
+    id: string
+    name: string
+}

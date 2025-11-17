@@ -32,7 +32,7 @@ const CustomBreadcrumb = () => {
             if (index == end) {
                 return (
                     <>
-                        <BreadcrumbItem>
+                        <BreadcrumbItem key={`bradcrumb-${index}`} customKey={`bradcrumb-${index}`}>
                             <BreadcrumbPage>{makeBreadcrumbText(bread)}</BreadcrumbPage>
                         </BreadcrumbItem>
                     </>
@@ -42,27 +42,27 @@ const CustomBreadcrumb = () => {
             if (nonLinkRoute.includes(bread)) {
                 return (
                     <>
-                        <BreadcrumbItem>
+                        <BreadcrumbItem key={`bradcrumb-${index}`} customKey={`bradcrumb-${index}`}>
                             <BreadcrumbPage>{makeBreadcrumbText(bread)}</BreadcrumbPage>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator className="hidden md:block" />
+                        <BreadcrumbSeparator key={`bradcrumb-seperator-${index}`} customKey={`bradcrumb-seperator-${index}`} className="hidden md:block" />
                     </>
                 )
             }
 
             return (
                 <>
-                    <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbItem key={`bradcrumb-${index}`} customKey={`bradcrumb-${index}`} className="hidden md:block">
                         <Link className='hover:underline' href={"/" + bread}>{makeBreadcrumbText(bread)}</Link>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator className="hidden md:block" />
+                    <BreadcrumbSeparator key={`bradcrumb-seperator-${index}`} customKey={`bradcrumb-seperator-${index}`} className="hidden md:block" />
                 </>
             )
         })
     }
     return (
         <Breadcrumb>
-            <BreadcrumbList className=''>
+            <BreadcrumbList>
                 {renderBreadcrumb()}
             </BreadcrumbList>
         </Breadcrumb>

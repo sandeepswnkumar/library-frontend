@@ -26,7 +26,7 @@ import {
 import LibraryService from '@/services/LibraryService'
 import { useAppSelector } from '@/lib/hooks'
 import { useParams, useRouter } from 'next/navigation'
-import AddLibraryFacilities from './AddLibraryFacilities'
+import AddLibraryFacilities from '../../branch/[id]/AddLibraryFacilities'
 import AddLibraryLocation from './AddLibraryLocation'
 import { Switch } from '@/components/ui/switch'
 import { Edit, ExternalLink, Trash2 } from 'lucide-react'
@@ -90,7 +90,7 @@ export default function EditLibrary() {
         libraryName: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
-        diamension: z.string().optional(),
+        dimension: z.string().optional(),
         floor: z.number().optional(),
         capacity: z.number().optional(),
         statusId: z.number().min(1, {
@@ -105,7 +105,7 @@ export default function EditLibrary() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             libraryName: '',
-            diamension: '',
+            dimension: '',
             floor: 0,
             capacity: 0,
             statusId: 0,
@@ -121,7 +121,7 @@ export default function EditLibrary() {
                     libraryName,
                     typeId,
                     statusId,
-                    diamension,
+                    dimension,
                     floor,
                     capacity,
                 } = resp.data.data
@@ -129,7 +129,7 @@ export default function EditLibrary() {
                     libraryName,
                     typeId,
                     statusId,
-                    diamension,
+                    dimension,
                     floor,
                     capacity,
                 })
@@ -166,10 +166,6 @@ export default function EditLibrary() {
                 <div className="flex gap-3">
                     {event.library && (
                         <>
-                            <AddLibraryFacilities
-                                library={event.library as Library}
-                                getLibraryDetail={getLibraryDetails}
-                            />
                             <AddLibraryLocation
                                 library={event.library as any}
                                 getLibraryDetail={getLibraryDetails}
@@ -329,7 +325,7 @@ export default function EditLibrary() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="diamension"
+                                    name="dimension"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Diamention</FormLabel>
@@ -466,7 +462,7 @@ export default function EditLibrary() {
                         )}
                     </div>
                 </BaseCard>
-                <BaseCard
+                {/* <BaseCard
                     cardTitle="Library Facitilies"
                     cardContentClass="pt-1"
                 >
@@ -494,7 +490,7 @@ export default function EditLibrary() {
                             )
                         )}
                     </div>
-                </BaseCard>
+                </BaseCard> */}
             </div>
         </Container>
     )

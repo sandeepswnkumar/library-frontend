@@ -1,6 +1,6 @@
 export type LibraryLocation = {
   id: number
-  libraryId?: number
+  libraryId: number
   library?: LibraryRef
   locationName?: string
   email?: string

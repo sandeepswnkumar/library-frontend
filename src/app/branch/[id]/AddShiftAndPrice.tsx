@@ -28,6 +28,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import Image from 'next/image'
 import LibraryService from '@/services/LibraryService'
+import { IndianRupee } from 'lucide-react'
 
 type LibraryProps = {
     id: string
@@ -35,13 +36,7 @@ type LibraryProps = {
     locations: []
 }
 
-const AddLibraryFacilities = ({
-    library,
-    getLibraryDetail,
-}: {
-    library: LibraryProps
-    getLibraryDetail: () => Promise<any>
-}) => {
+const AddShiftAndPrice = () => {
     const [open, setOpen] = useState<boolean>(false)
     const formSchema = z.object({
         libraryName: z.string().min(2, {
@@ -74,20 +69,17 @@ const AddLibraryFacilities = ({
 
     useEffect(() => {
         form.reset({
-            libraryId: Number(library.id),
-            libraryName: library.libraryName,
             libraryLocationId: 0,
             name: '',
             description: '',
             imageUrl: '',
         })
-    }, [library])
+    }, [])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             const resp = await LibraryService.createLibraryFacility(values)
             if (resp.data.success) {
-                getLibraryDetail()
                 setOpen(false)
             }
         } catch {}
@@ -99,11 +91,11 @@ const AddLibraryFacilities = ({
                 className="bg-white"
                 onClick={() => setOpen(true)}
             >
-                Add Library Facilities
+                Add Shift And Price
             </Button>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add Library Facility</DialogTitle>
+                    <DialogTitle>Add Shift And Price</DialogTitle>
 
                     <div className="max-h-[400px] overflow-auto px-3">
                         <Form {...form}>
@@ -111,15 +103,13 @@ const AddLibraryFacilities = ({
                                 onSubmit={form.handleSubmit(onSubmit)}
                                 className="space-y-8 mt-4"
                             >
-                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div className="grid gap-4 mb-4">
                                     <FormField
                                         control={form.control}
-                                        name="libraryLocationId"
+                                        name="roomTypeId"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>
-                                                    Branch
-                                                </FormLabel>
+                                                <FormLabel>Room Type</FormLabel>
                                                 <FormControl>
                                                     <Select
                                                         {...field}
@@ -139,10 +129,10 @@ const AddLibraryFacilities = ({
                                                         }
                                                     >
                                                         <SelectTrigger>
-                                                            <SelectValue placeholder="Location" />
+                                                            <SelectValue placeholder="Room Type" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {library.locations
+                                                            {/* {library.locations
                                                                 .length > 0 ? (
                                                                 library.locations.map(
                                                                     (location: {
@@ -173,7 +163,7 @@ const AddLibraryFacilities = ({
                                                                     No record
                                                                     found
                                                                 </SelectItem>
-                                                            )}
+                                                            )} */}
                                                         </SelectContent>
                                                     </Select>
                                                 </FormControl>
@@ -181,17 +171,20 @@ const AddLibraryFacilities = ({
                                             </FormItem>
                                         )}
                                     />
+                                </div>
+                                <div className="grid lg:grid-cols-2 gap-4  mb-4">
                                     <FormField
                                         control={form.control}
-                                        name="name"
+                                        name="start_time"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>
-                                                    Facility Name
+                                                    Shift Start Time
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        placeholder="Facility Name"
+                                                        type="time"
+                                                        placeholder="Shift Start Time"
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -199,19 +192,18 @@ const AddLibraryFacilities = ({
                                             </FormItem>
                                         )}
                                     />
-                                </div>
-                                <div className="grid gap-4  mb-4">
                                     <FormField
                                         control={form.control}
-                                        name="description"
+                                        name="end_time"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>
-                                                    Description
+                                                    Shift End Time
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Textarea
-                                                        placeholder="Description"
+                                                    <Input
+                                                        type="time"
+                                                        placeholder="Shift End Time"
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -220,28 +212,29 @@ const AddLibraryFacilities = ({
                                         )}
                                     />
                                 </div>
-                                <div className="grid grid-cols-3 gap-3 justify-between items-center mb-4">
+                                <div className="grid ">
                                     <FormField
                                         control={form.control}
-                                        name="imageUrl"
+                                        name="price"
                                         render={({ field }) => (
                                             <FormItem className="col-span-2">
-                                                <FormLabel>Image URL</FormLabel>
+                                                <FormLabel>Price</FormLabel>
                                                 <FormControl>
-                                                    <Textarea
-                                                        placeholder="Image URL"
-                                                        {...field}
-                                                    />
+                                                    <div className="flex items-center gap-1">
+                                                        <IndianRupee
+                                                            size={20}
+                                                        />
+                                                        <Input
+                                                            placeholder="Price"
+                                                            className=""
+                                                            {...field}
+                                                        />
+                                                    </div>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
-                                    {/* <Image
-                                        className="w-full h-full border-2 border-purple-600"
-                                        src="https://media.istockphoto.com/id/1265024528/photo/no-better-adventure-buddy.webp?a=1&b=1&s=612x612&w=0&k=20&c=tStWgNSFBAGPyu4gfJfDEjqMPDnvgqWUkIPyZYGS090="
-                                        alt="Facility Image"
-                                    /> */}
                                 </div>
                                 <div className="w-full flex justify-end">
                                     <Button type="submit">Add</Button>
@@ -255,4 +248,4 @@ const AddLibraryFacilities = ({
     )
 }
 
-export default AddLibraryFacilities
+export default AddShiftAndPrice

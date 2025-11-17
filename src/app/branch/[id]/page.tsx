@@ -45,6 +45,12 @@ import {
 import LibraryLocationService from '@/services/LibraryLocationService'
 import { useParams } from 'next/navigation'
 import { LibraryLocation } from '@/types/LibraryLocation'
+import AddRoomType from './AddRoomType'
+import AddShiftAndPrice from './AddShiftAndPrice'
+import AddLibraryFacilities from './AddLibraryFacilities'
+import SearchableSelect from '@/components/Custom/SearchableSelect'
+import SearchableSelectAPI from '@/components/Custom/SearchableSelectAPI'
+import LibraryService from '@/services/LibraryService'
 
 const frameworks = [
     {
@@ -70,11 +76,12 @@ const frameworks = [
 ]
 
 type LibraryLocationData = {
-    [key: string]: LibraryLocation
+    [key: string | number]: LibraryLocation
 }
 
 type LibraryEventState = {
     libraryLocation: LibraryLocationData | null
+    libraries: []
 }
 
 export default function EditLibraryLocation() {
@@ -89,6 +96,7 @@ export default function EditLibraryLocation() {
             return { ...prev, ...next }
         },
         {
+            libraries: [],
             libraryLocation: null,
         } as LibraryEventState
     )
@@ -100,7 +108,7 @@ export default function EditLibraryLocation() {
             message: 'Please select a status.',
         }),
         locationName: z.string().min(2, {
-            message: 'Location name must be at least 2 characters.',
+            message: 'Branch must be at least 2 characters.',
         }),
         email: z.string().min(1, {
             message: 'Email is required',
@@ -149,7 +157,7 @@ export default function EditLibraryLocation() {
         },
     })
 
-    const getLibrary = async () => {
+    const getLibraryLocation = async () => {
         try {
             const resp = await LibraryLocationService.getLibraryLocation(
                 Number(id)
@@ -193,8 +201,9 @@ export default function EditLibraryLocation() {
 
     useEffect(() => {
         if (misc.cities.length) {
-            getLibrary()
+            getLibraryLocation()
         }
+        getLibrary()
     }, [misc])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -211,15 +220,30 @@ export default function EditLibraryLocation() {
             formRef.current?.requestSubmit?.()
         }
     }
+
+    const getLibrary = async () => {
+        try {
+            const resp = await LibraryService.getLibraries()
+            if (resp.data.success) {
+                updateEvent({ libraries: resp.data.data })
+            }
+        } catch {}
+    }
     return (
         <Container>
             <SubHeaderCard>
-                <div>
-                    <h2 className="font-bold uppercase text-muted-foreground">
-                        Edit Branch
-                    </h2>
-                </div>
-                <div>
+                <h2 className="font-bold uppercase text-muted-foreground">
+                    Edit Branch
+                </h2>
+                <div className="gap-2 flex flex-wrap">
+                    {event.libraryLocation && (
+                        <AddLibraryFacilities
+                            libraryId={Number(event.libraryLocation.libraryId)}
+                            libraryLocationId={Number(event.libraryLocation.id)}
+                        />
+                    )}
+                    <AddRoomType />
+                    <AddShiftAndPrice />
                     <Button onClick={handleSaveClick}>Save</Button>
                 </div>
             </SubHeaderCard>
@@ -243,83 +267,11 @@ export default function EditLibraryLocation() {
                                         <FormItem>
                                             <FormLabel>Library</FormLabel>
                                             <FormControl>
-                                                <Popover
-                                                    open={open}
-                                                    onOpenChange={setOpen}
-                                                >
-                                                    <PopoverTrigger asChild>
-                                                        <Button
-                                                            variant="outline"
-                                                            role="combobox"
-                                                            aria-expanded={open}
-                                                            className="w-full justify-between hover:bg-transparent hover:text-inherit"
-                                                        >
-                                                            {value
-                                                                ? frameworks.find(
-                                                                      (
-                                                                          framework
-                                                                      ) =>
-                                                                          framework.value ===
-                                                                          value
-                                                                  )?.label
-                                                                : 'Select framework...'}
-                                                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                        </Button>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="p-0 rounded-none">
-                                                        <Command>
-                                                            <CommandInput placeholder="Library" />
-                                                            <CommandList>
-                                                                <CommandEmpty>
-                                                                    No framework
-                                                                    found.
-                                                                </CommandEmpty>
-                                                                <CommandGroup>
-                                                                    {frameworks.map(
-                                                                        (
-                                                                            framework
-                                                                        ) => (
-                                                                            <CommandItem
-                                                                                key={
-                                                                                    framework.value
-                                                                                }
-                                                                                value={
-                                                                                    framework.value
-                                                                                }
-                                                                                onSelect={(
-                                                                                    currentValue
-                                                                                ) => {
-                                                                                    setValue(
-                                                                                        currentValue ===
-                                                                                            value
-                                                                                            ? ''
-                                                                                            : currentValue
-                                                                                    )
-                                                                                    setOpen(
-                                                                                        false
-                                                                                    )
-                                                                                }}
-                                                                            >
-                                                                                <CheckIcon
-                                                                                    className={cn(
-                                                                                        'mr-2 h-4 w-4',
-                                                                                        value ===
-                                                                                            framework.value
-                                                                                            ? 'opacity-100'
-                                                                                            : 'opacity-0'
-                                                                                    )}
-                                                                                />
-                                                                                {
-                                                                                    framework.label
-                                                                                }
-                                                                            </CommandItem>
-                                                                        )
-                                                                    )}
-                                                                </CommandGroup>
-                                                            </CommandList>
-                                                        </Command>
-                                                    </PopoverContent>
-                                                </Popover>
+                                                <Input
+                                                    value={event.libraryLocation?.library?.libraryName || ''}
+                                                    placeholder="Library Name"
+                                                    disabled={true}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -330,10 +282,10 @@ export default function EditLibraryLocation() {
                                     name="locationName"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Location Name</FormLabel>
+                                            <FormLabel>Branch</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Location Name"
+                                                    placeholder="Branch"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -349,8 +301,11 @@ export default function EditLibraryLocation() {
                                             <FormLabel>Email</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Email"
                                                     {...field}
+                                                    placeholder="Email"
+                                                    disabled={true}
+                                                    onChange={() => null}
+
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -630,62 +585,109 @@ export default function EditLibraryLocation() {
                                 />
                             </div>
                         </BaseCard>
-                        <BaseCard
-                            cardTitle="Location Map"
-                            cardClass=" mb-0"
-                            cardContentClass="pt-1 mb-0"
-                        >
-                            <div className="grid">
-                                <FormField
-                                    control={form.control}
-                                    name="mapUrl"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Map Url</FormLabel>
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder="Map Url"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </BaseCard>
-                        <BaseCard
-                            cardTitle="Library Facitilies"
-                            cardContentClass="pt-1 mt-0"
-                        >
-                            <div className="grid grid-cols-4 gap-3 w-full">
-                                {(event.libraryLocation?.facilities || []).map(
-                                    (
-                                        facility: { id: string; name: string },
-                                        idx: number
-                                    ) => (
-                                        <div
-                                            key={facility.id ?? idx}
-                                            className="border p-3 rounded-md box-border flex flex-wrap flex-col"
-                                        >
-                                            <div className="flex gap-2 justify-end items-center">
-                                                <Edit
-                                                    size={20}
-                                                    className="text-purple-800 cursor-pointer"
-                                                />
-                                                <Trash2
-                                                    size={20}
-                                                    className="text-purple-800 cursor-pointer"
-                                                />
+                        <div className="flex gap-4 mb-0">
+                            <BaseCard
+                                cardTitle="Room Type"
+                                cardClass=" mb-0"
+                                cardContentClass="pt-1 mb-0"
+                            >
+                                <div className="flex gap-3">
+                                    <div className="px-3 py-2 bg-purple-700 rounded-xs text-sm text-white">
+                                        AC
+                                    </div>
+                                    <div className="px-3 py-2 bg-purple-700 rounded-xs text-sm text-white">
+                                        NON-AC
+                                    </div>
+                                </div>
+                            </BaseCard>
+                            <BaseCard
+                                cardTitle="Shift and Pricing"
+                                cardClass=" mb-0"
+                                cardContentClass="pt-1 mb-0"
+                            >
+                                <div className="grid">
+                                    <FormField
+                                        control={form.control}
+                                        name="mapUrl"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Map Url</FormLabel>
+                                                <FormControl>
+                                                    <Textarea
+                                                        placeholder="Map Url"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </BaseCard>
+                        </div>
+                        <div className="flex gap-4 mb-0">
+                            <BaseCard
+                                cardTitle="Location Map"
+                                cardClass=" mb-0"
+                                cardContentClass="pt-1 mb-0"
+                            >
+                                <div className="grid">
+                                    <FormField
+                                        control={form.control}
+                                        name="mapUrl"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Map Url</FormLabel>
+                                                <FormControl>
+                                                    <Textarea
+                                                        placeholder="Map Url"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </BaseCard>
+                            <BaseCard
+                                cardTitle="Library Facitilies"
+                                cardContentClass="pt-1 mt-0"
+                            >
+                                <div className="grid grid-cols-4 gap-3 w-full">
+                                    {(
+                                        event.libraryLocation?.facilities || []
+                                    ).map(
+                                        (
+                                            facility: {
+                                                id: string
+                                                name: string
+                                            },
+                                            idx: number
+                                        ) => (
+                                            <div
+                                                key={facility.id ?? idx}
+                                                className="border p-3 rounded-md box-border flex flex-wrap flex-col"
+                                            >
+                                                <div className="flex gap-2 justify-end items-center">
+                                                    <Edit
+                                                        size={20}
+                                                        className="text-purple-800 cursor-pointer"
+                                                    />
+                                                    <Trash2
+                                                        size={20}
+                                                        className="text-purple-800 cursor-pointer"
+                                                    />
+                                                </div>
+                                                <h2 className="font-bold text-xl">
+                                                    {facility.name}
+                                                </h2>
                                             </div>
-                                            <h2 className="font-bold text-xl">
-                                                {facility.name}
-                                            </h2>
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        </BaseCard>
+                                        )
+                                    )}
+                                </div>
+                            </BaseCard>
+                        </div>
                     </form>
                 </Form>
             </div>

@@ -16,6 +16,7 @@ import {
     setCities,
     setCountry,
     setStates,
+    setRoomType,
 } from '@/lib/features/MiscellaneousSlice'
 import userTypeEnum from '@/Enums/UserTypeEnum'
 
@@ -31,15 +32,9 @@ export default function RouteProvider({
     const fetchedRef = useRef(false)
     const isLoading = useRef(false)
 
-    useEffect(() => {
-        // runs on initial client mount and whenever pathname changes
-        console.log('here', pathname)
-    }, [pathname])
-
     const getCurrentUser = async () => {
         try {
             const resp = await AuthService.getCurrentUser()
-
             if (resp?.data?.success) {
                 dispatch(setUser(resp.data.data))
                 getInitalData()
@@ -60,14 +55,21 @@ export default function RouteProvider({
 
     const getInitalData = async () => {
         try {
-            const [libaryStatus, libaryType, cities, states, country] =
-                await Promise.allSettled([
-                    LibraryService.getLibraryStatus(),
-                    LibraryService.getLibraryType(),
-                    MiscellaneousService.getCities(),
-                    MiscellaneousService.getStates(),
-                    MiscellaneousService.getCountry(),
-                ])
+            const [
+                libaryStatus,
+                libaryType,
+                cities,
+                states,
+                country,
+                roomType,
+            ] = await Promise.allSettled([
+                LibraryService.getLibraryStatus(),
+                LibraryService.getLibraryType(),
+                MiscellaneousService.getCities(),
+                MiscellaneousService.getStates(),
+                MiscellaneousService.getCountry(),
+                MiscellaneousService.getRoomType(),
+            ])
 
             if (cities.status == 'fulfilled' && cities?.value.data?.success) {
                 dispatch(setCities(cities.value.data.data))
@@ -89,6 +91,12 @@ export default function RouteProvider({
                 libaryType?.value.data?.success
             ) {
                 dispatch(setLibraryType(libaryType.value.data.data))
+            }
+            if (
+                roomType.status == 'fulfilled' &&
+                roomType?.value.data?.success
+            ) {
+                dispatch(setRoomType(roomType.value.data.data))
             }
         } catch {}
     }

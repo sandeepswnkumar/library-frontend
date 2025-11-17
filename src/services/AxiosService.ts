@@ -1,3 +1,4 @@
+import { sanitizeObject } from '@/lib/utils'
 import axios from 'axios'
 import { toast } from 'sonner'
 
@@ -16,9 +17,17 @@ AxiosService.interceptors.request.use(
             config.headers['Authorization'] = `Bearer ${accessToken}`
         }
         config.headers['Accept-Language'] = language
+        try {
+            if (config.method == 'post') {
+                config.data = sanitizeObject(config.data)
+            }
+        } catch (err) {
+            console.log('err', err)
+        }
         return config
     },
     function (error) {
+        console.log('ds', error)
         // Do something with request error
         return Promise.reject(error)
     }
@@ -29,7 +38,7 @@ AxiosService.interceptors.response.use(
     function (response) {
         // Any status code that lie within the range of 2xx cause this function to trigger
         // Do something with response data
-        console.log('success', response)
+        // console.log('success', response)
         toast.success(response.data.message)
         return response
     },
@@ -39,7 +48,9 @@ AxiosService.interceptors.response.use(
         if (
             error.response.status === 401 &&
             !originalRequest._retry &&
-            !['admin/login','/admin/login', '/login', 'login'].includes(location.pathname)
+            !['admin/login', '/admin/login', '/login', 'login'].includes(
+                location.pathname
+            )
         ) {
             originalRequest._retry = true
             try {

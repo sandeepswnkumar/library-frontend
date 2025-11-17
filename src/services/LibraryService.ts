@@ -1,6 +1,7 @@
 import {
     LibraryCreateType,
     LibraryFacilitiesType,
+    LibraryRoomType,
     LibraryUpdateType,
 } from '@/types/LibraryType'
 import AxiosService from './AxiosService'
@@ -8,8 +9,8 @@ class LibraryService {
     async createLibrary(libraryData: LibraryCreateType) {
         return await AxiosService.post('library', libraryData)
     }
-    async getLibraries() {
-        return await AxiosService.get('library')
+    async getLibraries(data = {}) {
+        return await AxiosService.get('library', { params: data })
     }
     async getLibrary(id: string) {
         return await AxiosService.get(`library/${id}`)
@@ -31,6 +32,9 @@ class LibraryService {
         return await AxiosService.get('library-facility')
     }
     async createLibraryFacility(value: LibraryFacilitiesType) {
+        return await AxiosService.post('library-facility', value)
+    }
+    async createLibraryRoomType(value: LibraryRoomType) {
         return await AxiosService.post('library-facility', value)
     }
 }

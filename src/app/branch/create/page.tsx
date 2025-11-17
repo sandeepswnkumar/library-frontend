@@ -81,7 +81,7 @@ export default function CreateLibraryLocation() {
             message: 'Please select a status.',
         }),
         locationName: z.string().min(2, {
-            message: 'Location name must be at least 2 characters.',
+            message: 'Branch must be at least 2 characters.',
         }),
         email: z.string().min(1, {
             message: 'Email is required',
@@ -262,10 +262,10 @@ export default function CreateLibraryLocation() {
                                     name="locationName"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Location Name</FormLabel>
+                                            <FormLabel>Branch Name</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Location Name"
+                                                    placeholder="Branch"
                                                     {...field}
                                                 />
                                             </FormControl>

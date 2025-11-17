@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export function senetizeText(text?: string): string {
+export function sanitizeText(text?: string): string {
     if (!text) return ''
 
     // Normalize diacritics, remove quotes, keep alphanumerics, spaces, dash and underscore
@@ -30,10 +30,27 @@ export function senetizeText(text?: string): string {
 export function makeBreadcrumbText(text?: string): string {
     if (!text) return ''
     // sanitize then convert slug to Title Case for breadcrumb
-    const slug = senetizeText(text)
+    const slug = sanitizeText(text)
     return slug
         .split('-')
         .filter(Boolean)
         .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
         .join(' ')
+}
+
+export function sanitizeObject(
+    obj: Record<string, any> = {}
+): Record<string, any> {
+    if (typeof obj !== 'object' || obj === null) return obj
+
+    for (let ob_key of Object.keys(obj)) {
+        const value = obj[ob_key]
+        if (typeof value === 'string') {
+            obj[ob_key] = value.trim()
+        } else if (typeof value === 'object') {
+            obj[ob_key] = sanitizeObject(value)
+        }
+    }
+
+    return obj
 }

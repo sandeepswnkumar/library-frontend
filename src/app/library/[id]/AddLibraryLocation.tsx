@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import {
     Dialog,
     DialogContent,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
@@ -54,11 +55,11 @@ const AddLibraryLocation = ({
         locationName: z.string().min(1, {
             message: 'Branch name is required',
         }),
-        email: z.string().min(1, {
-            message: 'Email is required',
+        email: z.email({
+            message: 'Please enter valid email',
         }),
-        phone: z.string().min(2, {
-            message: 'Phone is required',
+        phone: z.string().min(10, {
+            message: 'Phone should be min 10 digit',
         }),
         address1: z.string().min(2, {
             message: 'Address 1 is required',
@@ -74,7 +75,7 @@ const AddLibraryLocation = ({
             message: 'Country Id is required',
         }),
         pincode: z.string().min(6, {
-            message: 'Pincode is required',
+            message: 'Pincode should be min 6 digit',
         }),
         latitude: z.string().optional(),
         longitude: z.string().optional(),
@@ -140,7 +141,6 @@ const AddLibraryLocation = ({
         }
     }, [library])
 
-    // console.log("form === ", form)
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             const resp = await LibraryLocationService.createLibraryLocation(
@@ -153,13 +153,6 @@ const AddLibraryLocation = ({
         } catch {}
     }
 
-    // function onError(errors, e) {
-    //     console.log("library === ", library)
-    //     console.log("form === ", form)
-    //     const errorKeys = Object.keys(errors)
-    //     console.log('errors : ', errors, e)
-    // }
-
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <Button
@@ -170,361 +163,350 @@ const AddLibraryLocation = ({
                 Add Branch
             </Button>
             <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Add Branch</DialogTitle>
-                    <div className="max-h-[400px] overflow-auto px-3">
-                        <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="space-y-8 mt-4"
-                            >
-                                <div className="mb-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="locationName"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>
-                                                    Branch Name
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Branch Name"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="email"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Email</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Email"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="phone"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Phone</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Phone"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="address1"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Address 1</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Address 1"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="address2"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Address 2</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Address 2"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="cityId"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>City</FormLabel>
-                                                <FormControl>
-                                                    <Select
-                                                        {...field}
-                                                        value={
-                                                            field.value
-                                                                ? String(
-                                                                      field.value
-                                                                  )
-                                                                : ''
-                                                        }
-                                                        onValueChange={(
-                                                            value
-                                                        ) =>
-                                                            field.onChange(
-                                                                Number(value)
-                                                            )
-                                                        }
-                                                    >
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="City" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {misc.cities
-                                                                .length > 0 ? (
-                                                                misc.cities.map(
-                                                                    (city) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                city.id
-                                                                            }
-                                                                            value={String(
-                                                                                city.id
-                                                                            )}
-                                                                        >
-                                                                            {
-                                                                                city.name
-                                                                            }
-                                                                        </SelectItem>
-                                                                    )
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-8 mt-4"
+                    >
+                        <DialogHeader>
+                            <DialogTitle>Add Branch</DialogTitle>
+                        </DialogHeader>
+                        <div className="max-h-[400px] overflow-auto px-3">
+                            <div className="mb-4">
+                                <FormField
+                                    control={form.control}
+                                    name="locationName"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Branch Name</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Branch Name"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Email"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Phone</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Phone"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <FormField
+                                    control={form.control}
+                                    name="address1"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Address 1</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Address 1"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address2"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Address 2</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Address 2"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="cityId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>City</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value
+                                                            ? String(
+                                                                  field.value
+                                                              )
+                                                            : ''
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="City" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {misc.cities.length >
+                                                        0 ? (
+                                                            misc.cities.map(
+                                                                (city) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            city.id
+                                                                        }
+                                                                        value={String(
+                                                                            city.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            city.name
+                                                                        }
+                                                                    </SelectItem>
                                                                 )
-                                                            ) : (
-                                                                <SelectItem
-                                                                    key="cityNotFound"
-                                                                    value="cityNotFound"
-                                                                >
-                                                                    No record
-                                                                    found
-                                                                </SelectItem>
-                                                            )}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="stateId"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>State</FormLabel>
-                                                <FormControl>
-                                                    <Select
-                                                        {...field}
-                                                        value={
-                                                            field.value
-                                                                ? String(
-                                                                      field.value
-                                                                  )
-                                                                : ''
-                                                        }
-                                                        onValueChange={(
-                                                            value
-                                                        ) =>
-                                                            field.onChange(
-                                                                Number(value)
                                                             )
-                                                        }
-                                                    >
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="State" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {misc.states
-                                                                .length ? (
-                                                                misc.states.map(
-                                                                    (state) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                state.id
-                                                                            }
-                                                                            value={String(
-                                                                                state.id
-                                                                            )}
-                                                                        >
-                                                                            {
-                                                                                state.name
-                                                                            }
-                                                                        </SelectItem>
-                                                                    )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="cityNotFound"
+                                                                value="cityNotFound"
+                                                            >
+                                                                No record found
+                                                            </SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="stateId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>State</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value
+                                                            ? String(
+                                                                  field.value
+                                                              )
+                                                            : ''
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="State" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {misc.states.length ? (
+                                                            misc.states.map(
+                                                                (state) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            state.id
+                                                                        }
+                                                                        value={String(
+                                                                            state.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            state.name
+                                                                        }
+                                                                    </SelectItem>
                                                                 )
-                                                            ) : (
-                                                                <SelectItem
-                                                                    key="stateFoundFound"
-                                                                    value="stateNotFound"
-                                                                >
-                                                                    No record
-                                                                    found
-                                                                </SelectItem>
-                                                            )}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="countryId"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Country</FormLabel>
-                                                <FormControl>
-                                                    <Select
-                                                        {...field}
-                                                        value={
-                                                            field.value
-                                                                ? String(
-                                                                      field.value
-                                                                  )
-                                                                : ''
-                                                        }
-                                                        onValueChange={(
-                                                            value
-                                                        ) =>
-                                                            field.onChange(
-                                                                Number(value)
                                                             )
-                                                        }
-                                                    >
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Country" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {misc.country
-                                                                .length ? (
-                                                                misc.country.map(
-                                                                    (cont) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                cont.id
-                                                                            }
-                                                                            value={String(
-                                                                                cont.id
-                                                                            )}
-                                                                        >
-                                                                            {
-                                                                                cont.name
-                                                                            }
-                                                                        </SelectItem>
-                                                                    )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="stateFoundFound"
+                                                                value="stateNotFound"
+                                                            >
+                                                                No record found
+                                                            </SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="countryId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Country</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    {...field}
+                                                    value={
+                                                        field.value
+                                                            ? String(
+                                                                  field.value
+                                                              )
+                                                            : ''
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Country" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {misc.country.length ? (
+                                                            misc.country.map(
+                                                                (cont) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            cont.id
+                                                                        }
+                                                                        value={String(
+                                                                            cont.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            cont.name
+                                                                        }
+                                                                    </SelectItem>
                                                                 )
-                                                            ) : (
-                                                                <SelectItem
-                                                                    key="countryNotFound"
-                                                                    value="countryNotFound"
-                                                                >
-                                                                    No record
-                                                                    found
-                                                                </SelectItem>
-                                                            )}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="pincode"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Pincode</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Pincode"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="latitude"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Latitude</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Latitude"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="longitude"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Longitude</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Longitude"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <FormField
-                                        control={form.control}
-                                        name="mapUrl"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Map Url</FormLabel>
-                                                <FormControl>
-                                                    <Textarea
-                                                        placeholder="Map Url"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="w-full flex justify-end">
-                                    <Button type="submit">Add</Button>
-                                </div>
-                            </form>
-                        </Form>
-                    </div>
-                </DialogHeader>
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="countryNotFound"
+                                                                value="countryNotFound"
+                                                            >
+                                                                No record found
+                                                            </SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="pincode"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Pincode</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Pincode"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="latitude"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Latitude</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Latitude"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="longitude"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Longitude</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Longitude"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <FormField
+                                    control={form.control}
+                                    name="mapUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Map Url</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Map Url"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <div className="w-full flex justify-end">
+                                <Button type="submit">Add</Button>
+                            </div>
+                        </DialogFooter>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     )

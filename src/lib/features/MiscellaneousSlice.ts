@@ -1,16 +1,18 @@
-import { CityType, CountryType, StateType } from '@/types/MiscellaneousType'
+import { CityType, CountryType, RoomType, StateType } from '@/types/MiscellaneousType'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 type MiscellaneousState = {
     cities: CityType[]
     states: StateType[]
     country: CountryType[]
+    roomType: RoomType[]
 }
 
 const initialState: MiscellaneousState = {
     cities: [],
     states: [],
     country: [],
+    roomType: [],
 }
 
 const MiscellaneousSlice = createSlice({
@@ -26,8 +28,11 @@ const MiscellaneousSlice = createSlice({
         setCountry(state, action: PayloadAction<CountryType[]>) {
             state.country = [...state.country, ...action.payload]
         },
+        setRoomType(state, action: PayloadAction<CountryType[]>) {
+            state.roomType = [...state.roomType, ...action.payload]
+        },
     },
 })
 
-export const { setCities, setStates, setCountry } = MiscellaneousSlice.actions
+export const { setCities, setStates, setCountry, setRoomType } = MiscellaneousSlice.actions
 export default MiscellaneousSlice.reducer

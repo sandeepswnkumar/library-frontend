@@ -10,6 +10,9 @@ class MiscellaneousService {
     async getCountry() {
         return await AxiosService.get('misc/country')
     }
+    async getRoomType() {
+        return await AxiosService.get('misc/roomType')
+    }
 }
 
 export default new MiscellaneousService()

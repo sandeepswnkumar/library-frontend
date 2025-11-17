@@ -1,0 +1,153 @@
+'use client'
+import BaseCard from '@/components/Custom/BaseCard'
+import SubHeaderCard from '@/components/Custom/SubHeaderCard'
+import Container from '@/components/layout/Container'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import React from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useAppSelector } from '@/lib/hooks'
+import { CheckIcon, ChevronsUpDownIcon, Library } from 'lucide-react'
+
+import { cn } from '@/lib/utils'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
+import Link from 'next/link'
+
+export default function ChooseLibraryLocation() {
+    const misc = useAppSelector((state) => state.misc)
+    const formSchema = z.object({
+        libraryName: z.string().min(2, {
+            message: 'Library name must be at least 2 characters.',
+        }),
+        libraryId: z.number().min(1, {
+            message: 'Please select a status.',
+        }),
+        locationName: z.string().min(2, {
+            message: 'Branch name must be at least 2 characters.',
+        }),
+        locationId: z.string().min(2, {
+            message: 'Location ID must be at least 2 characters.',
+        }),
+        email: z.string().min(1, {
+            message: 'Email is required',
+        }),
+        phone: z.string().min(2, {
+            message: 'Phone is required',
+        }),
+        address1: z.string().min(2, {
+            message: 'Address 1 is required',
+        }),
+        address2: z.string().optional(),
+        cityId: z.number().min(2, {
+            message: 'City is required',
+        }),
+        stateId: z.number().min(2, {
+            message: 'State is required',
+        }),
+        countryId: z.number().min(2, {
+            message: 'Country Id is required',
+        }),
+        pincode: z.string().min(2, {
+            message: 'Pincode is required',
+        }),
+        latitude: z.string().optional(),
+        longitude: z.string().optional(),
+        mapUrl: z.string().optional(),
+    })
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            libraryName: '33',
+            libraryId: 1,
+            locationName: '',
+            locationId: '',
+            email: '',
+            phone: '',
+            address1: '',
+            address2: '',
+            cityId: 0,
+            stateId: 0,
+            countryId: 0,
+            pincode: '',
+            latitude: '',
+            longitude: '',
+            mapUrl: '',
+        },
+    })
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        // try {
+        //     const resp = await LibraryLocationService.createLibraryLocation(
+        //         values
+        //     )
+        // } catch {}
+    }
+    return (
+        <Container>
+            <BaseCard cardClass="">
+                <div className="w-full grid grid-cols-4  gap-4 mb-4">
+                    
+                    <div className="flex justify-between gap-2 flex-col">
+                        <Label>Library</Label>
+                        <Input placeholder="Library Name" disabled={true} />
+                    </div>
+                </div>
+                <h2 className="mb-2 font-medium">Library Branch</h2>
+                <div className="w-full grid grid-cols-5 gap-4 ">
+                    <LibraryLocation />
+                    <LibraryLocation />
+                    <LibraryLocation />
+                    <LibraryLocation />
+                </div>
+            </BaseCard>
+        </Container>
+    )
+}
+
+const LibraryLocation = () => {
+    return (
+        <Link
+            href={'/booking/branch/1'}
+            className="shadow-md w-full pt-11 pb-11 cursor-pointer rounded-[12px]
+                       bg-purple-950 transition-all duration-300
+                       hover:scale-105 hover:shadow-2xl hover:bg-purple-900/95
+                       hover:ring-2 hover:ring-purple-800 hover:-translate-y-1 flex justify-center items-center flex-col"
+        >
+            <Library size={40} color="white" />
+            <span className="text-white font-medium text-lg">Library Branch</span>
+        </Link>
+    )
+}
