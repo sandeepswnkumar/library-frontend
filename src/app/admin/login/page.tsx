@@ -18,18 +18,24 @@ import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { setUser } from '@/lib/features/auth/AuthSlice'
 import { useRouter } from 'next/navigation'
 import Loader from '@/components/Custom/Loader'
+import Image from 'next/image'
+import { assets } from '@/assets/assets'
 
 export default function AdminLogin() {
     const formRef = useRef<HTMLFormElement | null>(null)
     const dispatch = useAppDispatch()
     const auth = useAppSelector((state) => state.auth)
     const router = useRouter()
+
     useEffect(() => {
-        if (auth && auth?.isAuthenticated) {
-            console.log('user loggedin')
+        const token = localStorage.getItem('_token')
+        if (!token) {
+            router.push('/admin/login')
+        } else if (auth && auth?.isAuthenticated) {
             router.push('/')
         }
     }, [auth, router])
+
     const formSchema = z.object({
         email: z.string().min(2, {
             message: 'Email is required',
@@ -117,7 +123,18 @@ export default function AdminLogin() {
                         </div>
                     </form>
                 </Form>
-                <div className="bg-green-500 col-span-6">image</div>
+                <div className="col-span-6">
+                    <Image
+                        src={assets.AdminBGImage}
+                        alt="bg-image"
+                        style={{
+                            objectFit: 'cover',
+                            width: '100vw',
+                            height: '100vh',
+                            opacity: '0.8',
+                        }}
+                    />
+                </div>
             </div>
         </div>
     )

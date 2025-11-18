@@ -28,19 +28,33 @@ import {
 import AuthService from '@/services/AuthService'
 import { useRouter } from 'next/navigation'
 
-export function NavUser({
-    user,
-}: {
+export interface UserDetails {
+    id: number
+    avatar: string | null
+    fullName: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    address1?: string | null
+}
+
+export interface AppUser {
     user: {
-        userDetails: {
-            fullName: string
-            firstName: string
-            lastName: string
-            avatar: string
-        }
+        id: number
         email: string
+        isOnboardingCompleted?: boolean
+        userTypeId?: number
+        userType?: {
+            id: number
+            name: string
+            createdBy: string | null
+            createdAt: string
+        }
+        userDetails: UserDetails
     }
-}) {
+}
+
+export function NavUser({ user }: { user: AppUser }) {
     const router = useRouter()
     const { isMobile } = useSidebar()
 
@@ -55,24 +69,27 @@ export function NavUser({
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
                                 <AvatarImage
-                                    src={user?.userDetails?.avatar || ''}
-                                    alt={user.userDetails.fullName}
+                                    src={user?.user?.userDetails?.avatar || ''}
+                                    alt={user?.user?.userDetails?.fullName}
                                 />
                                 <AvatarFallback className="rounded-lg text-purple-900 font-bold">
-                                    {(user.userDetails.firstName || '')
+                                    {(user?.user?.userDetails?.firstName || '')
                                         .charAt(0)
                                         .toUpperCase() +
-                                        (user.userDetails.lastName || '')
+                                        (
+                                            user?.user?.userDetails?.lastName ||
+                                            ''
+                                        )
                                             .charAt(0)
                                             .toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">
-                                    {user.userDetails.fullName}
+                                    {user?.user?.userDetails?.fullName}
                                 </span>
                                 <span className="truncate text-xs">
-                                    {user.email}
+                                    {user?.user?.email}
                                 </span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />
@@ -88,24 +105,33 @@ export function NavUser({
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage
-                                        src={user?.userDetails?.avatar || ''}
-                                        alt={user.userDetails.fullName}
+                                        src={
+                                            user?.user?.userDetails?.avatar ||
+                                            ''
+                                        }
+                                        alt={user?.user?.userDetails?.fullName}
                                     />
                                     <AvatarFallback className="rounded-lg">
-                                        {(user.userDetails.firstName || '')
+                                        {(
+                                            user?.user?.userDetails
+                                                ?.firstName || ''
+                                        )
                                             .charAt(0)
                                             .toUpperCase() +
-                                            (user.userDetails.lastName || '')
+                                            (
+                                                user?.user?.userDetails
+                                                    ?.lastName || ''
+                                            )
                                                 .charAt(0)
                                                 .toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-medium">
-                                        {user.userDetails.fullName}
+                                        {user?.user?.userDetails?.fullName}
                                     </span>
                                     <span className="truncate text-xs">
-                                        {user.email}
+                                        {user?.user?.email}
                                     </span>
                                 </div>
                             </div>
@@ -135,9 +161,11 @@ export function NavUser({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={async () => {
-                                const user = await AuthService.logOut()
-                                if (user.data.success) {
-                                    router.push('/login')
+                                const res = await AuthService.logOut()
+
+                                if (res.data.success) {
+                                    localStorage.clear()
+                                    router.push('/admin/login')
                                 }
                             }}
                         >
