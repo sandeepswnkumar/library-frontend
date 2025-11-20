@@ -159,6 +159,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const auth = useAppSelector((state) => state.auth)
+
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
