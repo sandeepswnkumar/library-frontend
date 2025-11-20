@@ -240,10 +240,21 @@ export default function EditLibraryLocation() {
                         <AddLibraryFacilities
                             libraryId={Number(event.libraryLocation.libraryId)}
                             libraryLocationId={Number(event.libraryLocation.id)}
+                            getLibraryLocation={getLibraryLocation}
                         />
                     )}
-                    <AddRoomType />
-                    <AddShiftAndPrice />
+                    {event.libraryLocation && (
+                        <AddRoomType
+                            libraryId={Number(event.libraryLocation.libraryId)}
+                            locationId={Number(event.libraryLocation.id)}
+                            getLibraryLocation={getLibraryLocation}
+                        />
+                    )}
+
+                    {event.libraryLocation && <AddShiftAndPrice libraryId={Number(event.libraryLocation.libraryId)}
+                            locationId={Number(event.libraryLocation.id)}
+                            getLibraryLocation={getLibraryLocation} roomtypes={event.libraryLocation.roomTypes} />}
+
                     <Button onClick={handleSaveClick}>Save</Button>
                 </div>
             </SubHeaderCard>
@@ -268,7 +279,11 @@ export default function EditLibraryLocation() {
                                             <FormLabel>Library</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    value={event.libraryLocation?.library?.libraryName || ''}
+                                                    value={
+                                                        event.libraryLocation
+                                                            ?.library
+                                                            ?.libraryName || ''
+                                                    }
                                                     placeholder="Library Name"
                                                     disabled={true}
                                                 />
@@ -305,7 +320,6 @@ export default function EditLibraryLocation() {
                                                     placeholder="Email"
                                                     disabled={true}
                                                     onChange={() => null}
-
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -591,14 +605,20 @@ export default function EditLibraryLocation() {
                                 cardClass=" mb-0"
                                 cardContentClass="pt-1 mb-0"
                             >
-                                <div className="flex gap-3">
-                                    <div className="px-3 py-2 bg-purple-700 rounded-xs text-sm text-white">
-                                        AC
+                                {event.libraryLocation?.roomTypes && (
+                                    <div className="flex gap-3">
+                                        {event.libraryLocation.roomTypes.map(
+                                            (roomType: {
+                                                id: number
+                                                roomType: string
+                                            }) => (
+                                                <div className="px-3 py-2 bg-purple-700 rounded-xs text-sm text-white">
+                                                    {roomType.roomType}
+                                                </div>
+                                            )
+                                        )}
                                     </div>
-                                    <div className="px-3 py-2 bg-purple-700 rounded-xs text-sm text-white">
-                                        NON-AC
-                                    </div>
-                                </div>
+                                )}
                             </BaseCard>
                             <BaseCard
                                 cardTitle="Shift and Pricing"

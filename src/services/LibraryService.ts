@@ -35,7 +35,10 @@ class LibraryService {
         return await AxiosService.post('library-facility', value)
     }
     async createLibraryRoomType(value: LibraryRoomType) {
-        return await AxiosService.post('library-facility', value)
+        return await AxiosService.post('library-location/room-type', value)
+    }
+    async getLibraryRoomType() {
+        return await AxiosService.get('library-location/room-type')
     }
 }
 

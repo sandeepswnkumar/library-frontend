@@ -29,11 +29,12 @@ import { useAppSelector } from '@/lib/hooks'
 import { RoomType } from '@/types/MiscellaneousType'
 
 type AddRoomTypePropsType = {
-    libraryId: string
-    locationId: string
+    libraryId: number
+    locationId: number
+    getLibraryLocation: () => void
 }
 
-const AddRoomType = ({libraryId, locationId }: AddRoomTypePropsType) => {
+const AddRoomType = ({ libraryId, locationId, getLibraryLocation }: AddRoomTypePropsType) => {
     const [open, setOpen] = useState<boolean>(false)
     const misc = useAppSelector((state) => state.misc)
     const [event, updateEvent] = useReducer(
@@ -55,8 +56,8 @@ const AddRoomType = ({libraryId, locationId }: AddRoomTypePropsType) => {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            libraryId: Number(libraryId),
-            libraryLocationId: Number(locationId),
+            libraryId: libraryId,
+            libraryLocationId: locationId,
             roomType: '',
         },
     })
@@ -67,13 +68,15 @@ const AddRoomType = ({libraryId, locationId }: AddRoomTypePropsType) => {
             if (resp.data.success) {
                 setOpen(false)
                 form.reset({
-                    libraryId: 0,
-                    libraryLocationId: 0,
+                    libraryId: libraryId,
+                    libraryLocationId: locationId,
                     roomType: '',
                 })
+                getLibraryLocation?.()
             }
         } catch {}
     }
+
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <Button
@@ -114,7 +117,7 @@ const AddRoomType = ({libraryId, locationId }: AddRoomTypePropsType) => {
                                                             value
                                                         ) =>
                                                             field.onChange(
-                                                                Number(value)
+                                                                value
                                                             )
                                                         }
                                                     >

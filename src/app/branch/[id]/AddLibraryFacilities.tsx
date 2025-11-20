@@ -31,12 +31,14 @@ import LibraryService from '@/services/LibraryService'
 
 type LibraryProps = {
     libraryId: number
-    libraryLocationId: number
+    libraryLocationId: number,
+    getLibraryLocation: () => void
 }
 
 const AddLibraryFacilities = ({
     libraryId,
     libraryLocationId,
+    getLibraryLocation
 }: LibraryProps) => {
     const [open, setOpen] = useState<boolean>(false)
     const formSchema = z.object({

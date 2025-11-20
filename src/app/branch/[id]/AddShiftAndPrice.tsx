@@ -30,13 +30,12 @@ import Image from 'next/image'
 import LibraryService from '@/services/LibraryService'
 import { IndianRupee } from 'lucide-react'
 
-type LibraryProps = {
+type AddShiftAndPricePropsType = {
     id: string
-    libraryName: string
-    locations: []
+    roomTypes: { id: number; roomType: string }
 }
 
-const AddShiftAndPrice = () => {
+const AddShiftAndPrice = ({ libraryLocation }: AddShiftAndPricePropsType) => {
     const [open, setOpen] = useState<boolean>(false)
     const formSchema = z.object({
         libraryName: z.string().min(2, {
@@ -132,12 +131,13 @@ const AddShiftAndPrice = () => {
                                                             <SelectValue placeholder="Room Type" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {/* {library.locations
+                                                            {libraryLocation
+                                                                .roomType
                                                                 .length > 0 ? (
-                                                                library.locations.map(
-                                                                    (location: {
-                                                                        locationName: string
+                                                                libraryLocation.roomType.map(
+                                                                    (roomType: {
                                                                         id: number
+                                                                        roomType: string
                                                                     }) => {
                                                                         return (
                                                                             <SelectItem
@@ -163,7 +163,7 @@ const AddShiftAndPrice = () => {
                                                                     No record
                                                                     found
                                                                 </SelectItem>
-                                                            )} */}
+                                                            )}
                                                         </SelectContent>
                                                     </Select>
                                                 </FormControl>
