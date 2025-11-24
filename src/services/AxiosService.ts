@@ -46,26 +46,29 @@ AxiosService.interceptors.response.use(
         const originalRequest = error.config
         // console.log("location.pathname", location.pathname)
         if (
-            error.response.status === 401 &&
-            !originalRequest._retry &&
-            !['admin/login', '/admin/login', '/login', 'login'].includes(
-                location.pathname
-            )
+            error.response.status === 401
+            // !originalRequest._retry &&
+            // !['admin/login', '/admin/login', '/login', 'login'].includes(
+            //     location.pathname
+            // )
         ) {
-            originalRequest._retry = true
-            try {
-                const { data } = await AxiosService.post('/auth/refresh-token')
-                localStorage.setItem('_token', data.data.token)
-                AxiosService.defaults.headers.common[
-                    'Authorization'
-                ] = `Bearer ${data.accessToken}`
-                return AxiosService(originalRequest)
-            } catch (refreshError) {
-                originalRequest._retry = false
-                const loginRoute =
-                    localStorage.getItem('login-route') || '/login'
-                window.location.replace(loginRoute)
-            }
+            localStorage.removeItem('_token')
+            const loginRoute = localStorage.getItem('login-route') || '/login'
+            window.location.replace(loginRoute)
+            // originalRequest._retry = true
+            // try {
+            //     const { data } = await AxiosService.post('/auth/refresh-token')
+            //     localStorage.setItem('_token', data.data.token)
+            //     AxiosService.defaults.headers.common[
+            //         'Authorization'
+            //     ] = `Bearer ${data.accessToken}`
+            //     return AxiosService(originalRequest)
+            // } catch (refreshError) {
+            //     originalRequest._retry = false
+            //     const loginRoute =
+            //         localStorage.getItem('login-route') || '/login'
+            //     window.location.replace(loginRoute)
+            // }
         } else {
             if (Array.isArray(error.response.data.message)) {
                 error.response.data.message.map(

@@ -28,7 +28,7 @@ import {
 import AuthService from '@/services/AuthService'
 import { useRouter } from 'next/navigation'
 
-export interface UserDetails {
+type UserDetails = {
     id: number
     avatar: string | null
     fullName: string
@@ -38,25 +38,25 @@ export interface UserDetails {
     address1?: string | null
 }
 
-export interface AppUser {
-    user: {
+type AppUser = {
+    id: number
+    email: string
+    isOnboardingCompleted?: boolean
+    userTypeId?: number
+    userType?: {
         id: number
-        email: string
-        isOnboardingCompleted?: boolean
-        userTypeId?: number
-        userType?: {
-            id: number
-            name: string
-            createdBy: string | null
-            createdAt: string
-        }
-        userDetails: UserDetails
+        name: string
+        createdBy: string | null
+        createdAt: string
     }
+    userDetails: UserDetails
 }
 
 export function NavUser({ user }: { user: AppUser }) {
     const router = useRouter()
     const { isMobile } = useSidebar()
+
+    console.log('user', user)
 
     return (
         <SidebarMenu>

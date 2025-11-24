@@ -11,7 +11,7 @@ import skillImg from './images/skills.png'
 import otherImg from './images/Others1.png'
 import otherImg1 from './images/Others1.png'
 import otherImg2 from './images/others2.png'
-import AdminBGImage from './images/library-backgoudImg.png'
+import AdminBGImage from './images/admin-login-bg.jpg'
 
 
 

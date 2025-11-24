@@ -25,61 +25,103 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import Image from 'next/image'
 import LibraryService from '@/services/LibraryService'
 import { IndianRupee } from 'lucide-react'
+import { LibraryBookingType } from '@/types/LibraryType'
+import { convertTo12Hour } from '@/lib/utils'
 
-type AddShiftAndPricePropsType = {
-    id: string
-    roomTypes: { id: number; roomType: string }
+type LibraryRoomType = {
+    id: number
+    roomType: string
 }
 
-const AddShiftAndPrice = ({ libraryLocation }: AddShiftAndPricePropsType) => {
+type AddShiftAndPricePropsType = {
+    libraryId: number
+    locationId: number
+    roomtypes: LibraryRoomType[]
+    libraryBookingUnit: LibraryBookingType[]
+    getLibraryLocation: () => void
+}
+
+const AddShiftAndPrice = ({
+    libraryId,
+    locationId,
+    roomtypes,
+    libraryBookingUnit,
+    getLibraryLocation,
+}: AddShiftAndPricePropsType) => {
     const [open, setOpen] = useState<boolean>(false)
     const formSchema = z.object({
-        libraryName: z.string().min(2, {
-            message: 'Library name must be at least 2 characters.',
+        libraryId: z.number(),
+        libraryLocationId: z.number(),
+
+        libraryRoomTypeId: z.number().min(1, {
+            message: 'Room Type is required',
         }),
-        libraryId: z.number().min(1, {
-            message: 'Please select a library.',
+
+        libraryBookingUnitId: z.number().min(1, {
+            message: 'Booking Type is required',
         }),
-        libraryLocationId: z.number().min(1, {
-            message: 'Please select a branch.',
+
+        startTime: z.string().min(2, {
+            message: 'Start time is required',
         }),
-        name: z.string().min(2, {
-            message: 'Facility Name must be at least 2 characters.',
+
+        endTime: z.string().min(2, {
+            message: 'End time is required',
         }),
-        description: z.string().optional(),
-        imageUrl: z.string().optional(),
+
+        rate: z.string().min(2, {
+            message: 'Rate is required',
+        }),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            libraryName: '',
-            libraryId: 0,
-            libraryLocationId: 0,
-            name: '',
-            description: '',
-            imageUrl: '',
+            libraryId: libraryId,
+            libraryLocationId: locationId,
+            libraryRoomTypeId: 0, // select default
+            libraryBookingUnitId: 0, // select default
+            startTime: '',
+            endTime: '',
+            rate: 0,
         },
     })
 
     useEffect(() => {
         form.reset({
-            libraryLocationId: 0,
-            name: '',
-            description: '',
-            imageUrl: '',
+            libraryId: libraryId,
+            libraryLocationId: locationId,
+            libraryRoomTypeId: 0,
+            libraryBookingUnitId: 0,
+            startTime: '',
+            endTime: '',
+            rate: '',
         })
     }, [])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const resp = await LibraryService.createLibraryFacility(values)
+            console.log('values', values)
+            values['period'] =
+                convertTo12Hour(values['startTime']) +
+                ' - ' +
+                convertTo12Hour(values['endTime'])
+            values['rate'] = parseFloat(parseFloat(values['rate']).toFixed(2))
+            const resp = await LibraryService.createLibraryShiftAndPrice(values)
             if (resp.data.success) {
                 setOpen(false)
+                form.reset({
+                    libraryId: libraryId,
+                    libraryLocationId: locationId,
+                    libraryRoomTypeId: 0,
+                    libraryBookingUnitId: 0,
+                    startTime: '',
+                    endTime: '',
+                    rate: 0,
+                })
+                getLibraryLocation?.()
             }
         } catch {}
     }
@@ -105,7 +147,7 @@ const AddShiftAndPrice = ({ libraryLocation }: AddShiftAndPricePropsType) => {
                                 <div className="grid gap-4 mb-4">
                                     <FormField
                                         control={form.control}
-                                        name="roomTypeId"
+                                        name="libraryRoomTypeId"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Room Type</FormLabel>
@@ -131,25 +173,92 @@ const AddShiftAndPrice = ({ libraryLocation }: AddShiftAndPricePropsType) => {
                                                             <SelectValue placeholder="Room Type" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {libraryLocation
-                                                                .roomType
-                                                                .length > 0 ? (
-                                                                libraryLocation.roomType.map(
-                                                                    (roomType: {
-                                                                        id: number
-                                                                        roomType: string
-                                                                    }) => {
+                                                            {roomtypes.length >
+                                                            0 ? (
+                                                                roomtypes.map(
+                                                                    (
+                                                                        roomType: LibraryRoomType
+                                                                    ) => {
                                                                         return (
                                                                             <SelectItem
-                                                                                key={
-                                                                                    location.id
-                                                                                }
+                                                                                key={String(
+                                                                                    roomType.id
+                                                                                )}
                                                                                 value={String(
-                                                                                    location.id
+                                                                                    roomType.id
                                                                                 )}
                                                                             >
                                                                                 {
-                                                                                    location.locationName
+                                                                                    roomType.roomType
+                                                                                }
+                                                                            </SelectItem>
+                                                                        )
+                                                                    }
+                                                                )
+                                                            ) : (
+                                                                <SelectItem
+                                                                    value="LocationNotFound"
+                                                                    key="LocationNotFound"
+                                                                >
+                                                                    No record
+                                                                    found
+                                                                </SelectItem>
+                                                            )}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="libraryBookingUnitId"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Booking Type
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Select
+                                                        {...field}
+                                                        value={
+                                                            field.value
+                                                                ? String(
+                                                                      field.value
+                                                                  )
+                                                                : ''
+                                                        }
+                                                        onValueChange={(
+                                                            value
+                                                        ) =>
+                                                            field.onChange(
+                                                                Number(value)
+                                                            )
+                                                        }
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Booking Type" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {libraryBookingUnit.length >
+                                                            0 ? (
+                                                                libraryBookingUnit.map(
+                                                                    (bookingUnit: {
+                                                                        id: string
+                                                                        bookingUnit: string
+                                                                    }) => {
+                                                                        return (
+                                                                            <SelectItem
+                                                                                key={String(
+                                                                                    bookingUnit.id
+                                                                                )}
+                                                                                value={String(
+                                                                                    bookingUnit.id
+                                                                                )}
+                                                                            >
+                                                                                {
+                                                                                    bookingUnit.bookingUnit
                                                                                 }
                                                                             </SelectItem>
                                                                         )
@@ -175,7 +284,7 @@ const AddShiftAndPrice = ({ libraryLocation }: AddShiftAndPricePropsType) => {
                                 <div className="grid lg:grid-cols-2 gap-4  mb-4">
                                     <FormField
                                         control={form.control}
-                                        name="start_time"
+                                        name="startTime"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>
@@ -194,7 +303,7 @@ const AddShiftAndPrice = ({ libraryLocation }: AddShiftAndPricePropsType) => {
                                     />
                                     <FormField
                                         control={form.control}
-                                        name="end_time"
+                                        name="endTime"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>
@@ -215,7 +324,7 @@ const AddShiftAndPrice = ({ libraryLocation }: AddShiftAndPricePropsType) => {
                                 <div className="grid ">
                                     <FormField
                                         control={form.control}
-                                        name="price"
+                                        name="rate"
                                         render={({ field }) => (
                                             <FormItem className="col-span-2">
                                                 <FormLabel>Price</FormLabel>

@@ -54,3 +54,20 @@ export function sanitizeObject(
 
     return obj
 }
+
+export function convertTo12Hour(time24: string) {
+    // Split hours and minutes
+    const [hourStr, minute] = time24.split(':')
+    let hour = parseInt(hourStr)
+
+    // Determine AM or PM
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+
+    // Convert hour from 24-hour to 12-hour format
+    hour = hour % 12 || 12 // 0 becomes 12
+
+    // Pad single digit hours with 0 if needed (optional)
+    const hourStr12 = hour < 10 ? `0${hour}` : `${hour}`
+
+    return `${hourStr12}:${minute}${ampm}`
+}

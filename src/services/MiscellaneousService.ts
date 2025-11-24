@@ -13,6 +13,12 @@ class MiscellaneousService {
     async getRoomType() {
         return await AxiosService.get('misc/roomType')
     }
+    async getBookingUnit() {
+        return await AxiosService.get('misc/bookingUnit')
+    }
+    async getFacilites() {
+        return await AxiosService.get('misc/facilities')
+    }
 }
 
 export default new MiscellaneousService()

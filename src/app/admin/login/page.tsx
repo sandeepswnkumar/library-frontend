@@ -26,9 +26,14 @@ export default function AdminLogin() {
     const dispatch = useAppDispatch()
     const auth = useAppSelector((state) => state.auth)
     const router = useRouter()
+    const token = window.localStorage.getItem('_token')
 
+    if(token){
+        console.log('dsd', token)
+        router.push('/')
+    }
     useEffect(() => {
-        const token = localStorage.getItem('_token')
+        
         if (!token) {
             router.push('/admin/login')
         } else if (auth && auth?.isAuthenticated) {
@@ -70,9 +75,15 @@ export default function AdminLogin() {
                     <form
                         ref={formRef}
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="col-span-2 flex flex-col justify-center items-center w-full h-full"
+                        className="col-span-8 lg:col-span-4 xl:col-span-2 flex flex-col justify-center items-center w-full h-full"
+                        style={{
+                        background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${assets.AdminBGImage.src})`,
+                        backgroundPosition: 'center',
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                    }}
                     >
-                        <div className="h-full flex flex-col justify-center items-center w-70 gap-4">
+                        <div className="h-full flex flex-col justify-center items-center bg-white  px-4 w-70 gap-4">
                             <FormField
                                 control={form.control}
                                 name="email"
@@ -118,23 +129,20 @@ export default function AdminLogin() {
                                 </a>
                             </div>
                             <Button type="submit" className="w-full mx-auto">
-                                login
+                                Login
                             </Button>
                         </div>
                     </form>
                 </Form>
-                <div className="col-span-6">
-                    <Image
-                        src={assets.AdminBGImage}
-                        alt="bg-image"
-                        style={{
-                            objectFit: 'cover',
-                            width: '100vw',
-                            height: '100vh',
-                            opacity: '0.8',
-                        }}
-                    />
-                </div>
+                <div
+                    className="hidden lg:flex lg:col-span-4 xl:col-span-6 h-screen"
+                    style={{
+                        background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${assets.AdminBGImage.src})`,
+                        backgroundPosition: 'center',
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                    }}
+                ></div>
             </div>
         </div>
     )

@@ -43,6 +43,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 import LibraryLocationService from '@/services/LibraryLocationService'
+import facilityImages from '@/assets/images/facilities'
 import { useParams } from 'next/navigation'
 import { LibraryLocation } from '@/types/LibraryLocation'
 import AddRoomType from './AddRoomType'
@@ -51,6 +52,15 @@ import AddLibraryFacilities from './AddLibraryFacilities'
 import SearchableSelect from '@/components/Custom/SearchableSelect'
 import SearchableSelectAPI from '@/components/Custom/SearchableSelectAPI'
 import LibraryService from '@/services/LibraryService'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table'
+import AddBookingType from './AddBookingType'
 
 const frameworks = [
     {
@@ -250,10 +260,25 @@ export default function EditLibraryLocation() {
                             getLibraryLocation={getLibraryLocation}
                         />
                     )}
-
-                    {event.libraryLocation && <AddShiftAndPrice libraryId={Number(event.libraryLocation.libraryId)}
+                    {event.libraryLocation && (
+                        <AddBookingType
+                            libraryId={Number(event.libraryLocation.libraryId)}
                             locationId={Number(event.libraryLocation.id)}
-                            getLibraryLocation={getLibraryLocation} roomtypes={event.libraryLocation.roomTypes} />}
+                            getLibraryLocation={getLibraryLocation}
+                        />
+                    )}
+
+                    {event.libraryLocation && (
+                        <AddShiftAndPrice
+                            libraryId={event.libraryLocation.libraryId}
+                            locationId={event.libraryLocation.id}
+                            getLibraryLocation={getLibraryLocation}
+                            roomtypes={event.libraryLocation.roomTypes}
+                            libraryBookingUnit={
+                                event.libraryLocation.libraryBookingUnit
+                            }
+                        />
+                    )}
 
                     <Button onClick={handleSaveClick}>Save</Button>
                 </div>
@@ -599,51 +624,220 @@ export default function EditLibraryLocation() {
                                 />
                             </div>
                         </BaseCard>
-                        <div className="flex gap-4 mb-0">
-                            <BaseCard
-                                cardTitle="Room Type"
-                                cardClass=" mb-0"
-                                cardContentClass="pt-1 mb-0"
-                            >
-                                {event.libraryLocation?.roomTypes && (
-                                    <div className="flex gap-3">
-                                        {event.libraryLocation.roomTypes.map(
-                                            (roomType: {
-                                                id: number
-                                                roomType: string
-                                            }) => (
-                                                <div className="px-3 py-2 bg-purple-700 rounded-xs text-sm text-white">
-                                                    {roomType.roomType}
-                                                </div>
-                                            )
-                                        )}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-0">
+                            <div className=" lg:col-span-2 grid grid-cols-2 gap-4 mb-0">
+                                <BaseCard
+                                    cardTitle="Room Type"
+                                    cardClass=" mb-0"
+                                    cardContentClass="pt-1 mb-0"
+                                >
+                                    {event.libraryLocation?.roomTypes && (
+                                        <div className="flex flex-wrap gap-3">
+                                            {event.libraryLocation.roomTypes.map(
+                                                (roomType: {
+                                                    id: number
+                                                    roomType: string
+                                                }) => (
+                                                    <div className=" bg-purple-700 rounded-xs text-sm text-white flex items-center gap-2">
+                                                        <span className="px-3 py-2 border border-transparent">
+                                                            {roomType.roomType}
+                                                        </span>{' '}
+                                                        <Trash2
+                                                            size={15}
+                                                            className="text-red-500 px-2 cursor-pointer bg-white h-full w-full border border-purple-700 hover:bg-red-500 hover:text-white"
+                                                            onClick={async () => {
+                                                                try {
+                                                                    const resp =
+                                                                        await LibraryLocationService.deleteLibraryRoomType(
+                                                                            String(
+                                                                                roomType.id
+                                                                            )
+                                                                        )
+                                                                    if (
+                                                                        resp
+                                                                            .data
+                                                                            .success
+                                                                    ) {
+                                                                        getLibraryLocation()
+                                                                    }
+                                                                } catch {}
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                </BaseCard>
+                                <BaseCard
+                                    cardTitle="Booking Type"
+                                    cardClass=" mb-0"
+                                    cardContentClass="pt-1 mb-0"
+                                    // headerButton={[
+                                    //     {
+                                    //         type: 'ADD',
+                                    //         subType : 'MODAL',
+                                    //         action : <AddRoomType />
+                                    //     },
+                                    // ]}
+                                >
+                                    {event.libraryLocation
+                                        ?.libraryBookingUnit && (
+                                        <div className="flex flex-wrap gap-3">
+                                            {event.libraryLocation.libraryBookingUnit.map(
+                                                (bookingUnit: {
+                                                    id: number
+                                                    bookingUnit: string
+                                                }) => (
+                                                    <div className=" bg-purple-700 rounded-xs text-sm text-white flex items-center gap-2">
+                                                        <span className="px-3 py-2 border border-transparent">
+                                                            {
+                                                                bookingUnit.bookingUnit
+                                                            }
+                                                        </span>{' '}
+                                                        <Trash2
+                                                            size={15}
+                                                            className="text-red-500 px-2 cursor-pointer bg-white h-full w-full border border-purple-700 hover:bg-red-500 hover:text-white"
+                                                            onClick={async () => {
+                                                                try {
+                                                                    const resp =
+                                                                        await LibraryLocationService.deleteLibraryBookingUnit(
+                                                                            String(
+                                                                                bookingUnit.id
+                                                                            )
+                                                                        )
+                                                                    if (
+                                                                        resp
+                                                                            .data
+                                                                            .success
+                                                                    ) {
+                                                                        getLibraryLocation()
+                                                                    }
+                                                                } catch {}
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                </BaseCard>
+                            </div>
+                            <div className=" lg:col-span-2">
+                                <BaseCard
+                                    cardTitle="Shift and Pricing"
+                                    cardClass=" mb-0"
+                                    cardContentClass="pt-1 mb-0"
+                                >
+                                    <div className="relative w-full max-h-[300px] overflow-y-auto">
+                                        <table className="w-full border-collapse text-sm">
+                                            <thead className="sticky top-0 bg-white z-20">
+                                                <tr className="bg-white border-b">
+                                                    <th className="p-2 text-left">
+                                                        Sl.No.
+                                                    </th>
+                                                    <th className="p-2 text-left">
+                                                        Room Type
+                                                    </th>
+                                                    <th className="p-2 text-left">
+                                                        Booking Type
+                                                    </th>
+                                                    <th className="p-2 text-left">
+                                                        Shift Time
+                                                    </th>
+                                                    <th className="p-2 text-left">
+                                                        Price
+                                                    </th>
+                                                    <th className="p-2 text-left">
+                                                        Action
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {event.libraryLocation
+                                                    ?.libraryShifts &&
+                                                event.libraryLocation
+                                                    .libraryShifts.length >
+                                                    0 ? (
+                                                    event.libraryLocation.libraryShifts.map(
+                                                        (shift, i) => (
+                                                            <tr className="border-b last:border-0">
+                                                                <td className="p-2">
+                                                                    {i + 1}
+                                                                </td>
+                                                                <td className="p-2">
+                                                                    {
+                                                                        shift
+                                                                            .roomType
+                                                                            .roomType
+                                                                    }
+                                                                </td>
+                                                                <td className="p-2">
+                                                                    {
+                                                                        shift
+                                                                            .bookingUnit
+                                                                            .bookingUnit
+                                                                    }
+                                                                </td>
+                                                                <td className="p-2">
+                                                                    {
+                                                                        shift.period
+                                                                    }
+                                                                </td>
+                                                                <td className="p-2">
+                                                                    {parseFloat(
+                                                                        shift.rate
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}
+                                                                </td>
+                                                                <td className="p-2 flex gap-2">
+                                                                    <Edit
+                                                                        size={
+                                                                            18
+                                                                        }
+                                                                        className="text-purple-700 cursor-pointer"
+                                                                    />
+                                                                    <Trash2
+                                                                        size={
+                                                                            18
+                                                                        }
+                                                                        className="text-purple-700 cursor-pointer"
+                                                                        onClick={async () => {
+                                                                            try {
+                                                                                const resp =
+                                                                                    await LibraryLocationService.deleteLibraryShiftAndPrice(
+                                                                                        shift.id
+                                                                                    )
+                                                                                if (
+                                                                                    resp
+                                                                                        .data
+                                                                                        .success
+                                                                                ) {
+                                                                                    getLibraryLocation()
+                                                                                }
+                                                                            } catch {}
+                                                                        }}
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )
+                                                ) : (
+                                                    <tr>
+                                                        <td
+                                                            colSpan={6}
+                                                            className="text-center py-3"
+                                                        >
+                                                            No Record Found
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                )}
-                            </BaseCard>
-                            <BaseCard
-                                cardTitle="Shift and Pricing"
-                                cardClass=" mb-0"
-                                cardContentClass="pt-1 mb-0"
-                            >
-                                <div className="grid">
-                                    <FormField
-                                        control={form.control}
-                                        name="mapUrl"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Map Url</FormLabel>
-                                                <FormControl>
-                                                    <Textarea
-                                                        placeholder="Map Url"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            </BaseCard>
+                                </BaseCard>
+                            </div>
                         </div>
                         <div className="flex gap-4 mb-0">
                             <BaseCard
@@ -676,32 +870,49 @@ export default function EditLibraryLocation() {
                             >
                                 <div className="grid grid-cols-4 gap-3 w-full">
                                     {(
-                                        event.libraryLocation?.facilities || []
+                                        event.libraryLocation
+                                            ?.libraryFacilities || []
                                     ).map(
                                         (
-                                            facility: {
-                                                id: string
-                                                name: string
+                                            facilites: {
+                                                id: number
+                                                facility: {
+                                                    id: number
+                                                    name: string
+                                                    imageUrl: string
+                                                }
                                             },
                                             idx: number
                                         ) => (
                                             <div
-                                                key={facility.id ?? idx}
-                                                className="border p-3 rounded-md box-border flex flex-wrap flex-col"
+                                                key={facilites.id ?? idx}
+                                                className="border p-3  rounded-md box-border flex flex-wrap justify-center flex-col"
                                             >
-                                                <div className="flex gap-2 justify-end items-center">
-                                                    <Edit
-                                                        size={20}
-                                                        className="text-purple-800 cursor-pointer"
-                                                    />
+                                                {/* <div className="flex gap-2 justify-end items-center">
                                                     <Trash2
                                                         size={20}
                                                         className="text-purple-800 cursor-pointer"
                                                     />
+                                                </div> */}
+                                                <div className='flex flex-col justify-evenly items-center'>
+                                                    <img
+                                                        src={
+                                                            facilityImages[
+                                                                facilites.facility.imageUrl
+                                                            ] ? facilityImages[
+                                                                facilites.facility.imageUrl
+                                                            ]['src'] : '/file.svg'
+                                                        }
+                                                        alt={facilites.facility.name}
+                                                        className="w-15"
+                                                    />
+                                                    <h2 className="font-bold text-md">
+                                                        {
+                                                            facilites.facility
+                                                                .name
+                                                        }
+                                                    </h2>
                                                 </div>
-                                                <h2 className="font-bold text-xl">
-                                                    {facility.name}
-                                                </h2>
                                             </div>
                                         )
                                     )}

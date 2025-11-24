@@ -76,7 +76,7 @@ export type LibraryLocationUpdateType = {
 export type LibraryFacilitiesType = {
     libraryId: number
     libraryLocationId: number
-    facilityId: string
+    facilityId: number
     description?: string
 }
 export type LibraryRoomType = {
@@ -84,6 +84,21 @@ export type LibraryRoomType = {
     libraryLocationId: number
     roomType: string
 }
+export type LibraryBookingType = {
+    libraryId: number
+    libraryLocationId: number
+    bookingUnit: string
+}
+export type LibraryShiftAndPriceType = {
+    libraryId: number;
+    libraryLocationId: number;
+    libraryRoomTypeId: number;
+    libraryBookingUnitId: number;
+    period: string;
+    startTime: string;
+    endTime: string;
+    rate: number;
+};
 
 
 export type libarayTypeType = { id: number; name: string; color: string }

@@ -1,7 +1,9 @@
 import {
+    LibraryBookingType,
     LibraryCreateType,
     LibraryFacilitiesType,
     LibraryRoomType,
+    LibraryShiftAndPriceType,
     LibraryUpdateType,
 } from '@/types/LibraryType'
 import AxiosService from './AxiosService'
@@ -39,6 +41,18 @@ class LibraryService {
     }
     async getLibraryRoomType() {
         return await AxiosService.get('library-location/room-type')
+    }
+    async createLibraryBookingUnit(value: LibraryBookingType) {
+        return await AxiosService.post('library-location/booking-unit', value)
+    }
+    async getLibraryBookingUnit() {
+        return await AxiosService.get('library-location/booking-unit')
+    }
+    async createLibraryShiftAndPrice(value: LibraryShiftAndPriceType) {
+        return await AxiosService.post('library-shift-price', value)
+    }
+    async getLibraryShiftAndPrice() {
+        return await AxiosService.get('library-shift-price')
     }
 }
 

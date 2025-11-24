@@ -17,6 +17,8 @@ import {
     setCountry,
     setStates,
     setRoomType,
+    setBookingUnit,
+    setFacilities,
 } from '@/lib/features/MiscellaneousSlice'
 import userTypeEnum from '@/Enums/UserTypeEnum'
 
@@ -62,6 +64,8 @@ export default function RouteProvider({
                 states,
                 country,
                 roomType,
+                bookingUnit,
+                facilities
             ] = await Promise.allSettled([
                 LibraryService.getLibraryStatus(),
                 LibraryService.getLibraryType(),
@@ -69,6 +73,8 @@ export default function RouteProvider({
                 MiscellaneousService.getStates(),
                 MiscellaneousService.getCountry(),
                 MiscellaneousService.getRoomType(),
+                MiscellaneousService.getBookingUnit(),
+                MiscellaneousService.getFacilites(),
             ])
 
             if (cities.status == 'fulfilled' && cities?.value.data?.success) {
@@ -97,6 +103,18 @@ export default function RouteProvider({
                 roomType?.value.data?.success
             ) {
                 dispatch(setRoomType(roomType.value.data.data))
+            }
+            if (
+                bookingUnit.status == 'fulfilled' &&
+                bookingUnit?.value.data?.success
+            ) {
+                dispatch(setBookingUnit(bookingUnit.value.data.data))
+            }
+            if (
+                facilities.status == 'fulfilled' &&
+                facilities?.value.data?.success
+            ) {
+                dispatch(setFacilities(facilities.value.data.data))
             }
         } catch {}
     }

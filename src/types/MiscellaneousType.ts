@@ -14,3 +14,12 @@ export type RoomType = {
     id: string
     name: string
 }
+export type BookingUnit = {
+    id: string
+    name: string
+}
+export type facilities = {
+    id: string
+    name: string
+    imageUrl: string
+}

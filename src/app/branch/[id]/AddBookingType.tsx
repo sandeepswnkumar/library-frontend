@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -6,7 +6,6 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -25,72 +24,60 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import Image from 'next/image'
 import LibraryService from '@/services/LibraryService'
 import { useAppSelector } from '@/lib/hooks'
-import { facilities } from '@/types/MiscellaneousType'
+import { BookingUnit } from '@/types/MiscellaneousType'
 
-type LibraryProps = {
+type AddRoomTypePropsType = {
     libraryId: number
-    libraryLocationId: number
+    locationId: number
     getLibraryLocation: () => void
 }
 
-const AddLibraryFacilities = ({
-    libraryId,
-    libraryLocationId,
-    getLibraryLocation,
-}: LibraryProps) => {
+const AddBookingType = ({ libraryId, locationId, getLibraryLocation }: AddRoomTypePropsType) => {
     const [open, setOpen] = useState<boolean>(false)
     const misc = useAppSelector((state) => state.misc)
+    const [event, updateEvent] = useReducer(
+        (prev, next) => {
+            return { ...prev, ...next }
+        },
+        {
+            open: false,
+        }
+    )
     const formSchema = z.object({
-        libraryId: z.number().min(1, {
-            message: 'Please select a library.',
+        libraryId: z.number(),
+        libraryLocationId: z.number(),
+        bookingUnit: z.string().min(2, {
+            message: 'Facility Name must be at least 2 characters.',
         }),
-        libraryLocationId: z.number().min(1, {
-            message: 'Please select a branch.',
-        }),
-        facilityId: z.number().min(1, {
-            message: 'Please select a facility.',
-        }),
-        description: z.string().optional(),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             libraryId: libraryId,
-            libraryLocationId: libraryLocationId,
-            facilityId: 0,
-            description: '',
+            libraryLocationId: locationId,
+            bookingUnit: '',
         },
     })
 
-    useEffect(() => {
-        form.reset({
-            libraryId: libraryId,
-            libraryLocationId: libraryLocationId,
-            facilityId: 0,
-            description: '',
-        })
-    }, [])
-
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const resp = await LibraryService.createLibraryFacility(values)
+            const resp = await LibraryService.createLibraryBookingUnit(values)
             if (resp.data.success) {
                 setOpen(false)
                 form.reset({
                     libraryId: libraryId,
-                    libraryLocationId: libraryLocationId,
-                    facilityId: 0,
-                    description: '',
+                    libraryLocationId: locationId,
+                    bookingUnit: '',
                 })
-                getLibraryLocation()
+                getLibraryLocation?.()
             }
         } catch {}
     }
+
+
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <Button
@@ -98,11 +85,11 @@ const AddLibraryFacilities = ({
                 className="bg-white"
                 onClick={() => setOpen(true)}
             >
-                Add Library Facilities
+                Add Booking Type
             </Button>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add Library Facility</DialogTitle>
+                    <DialogTitle>Add Booking Type</DialogTitle>
 
                     <div className="max-h-[400px] overflow-auto px-3">
                         <Form {...form}>
@@ -110,13 +97,13 @@ const AddLibraryFacilities = ({
                                 onSubmit={form.handleSubmit(onSubmit)}
                                 className="space-y-8 mt-4"
                             >
-                                <div className="grid  gap-4 mb-4">
+                                <div className=" mb-4">
                                     <FormField
                                         control={form.control}
-                                        name="facilityId"
+                                        name="bookingUnit"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Facility</FormLabel>
+                                                <FormLabel>Booking Type</FormLabel>
                                                 <FormControl>
                                                     <Select
                                                         {...field}
@@ -131,31 +118,31 @@ const AddLibraryFacilities = ({
                                                             value
                                                         ) =>
                                                             field.onChange(
-                                                                Number(value)
+                                                                value
                                                             )
                                                         }
                                                     >
                                                         <SelectTrigger>
-                                                            <SelectValue placeholder="Facility" />
+                                                            <SelectValue placeholder="Booking Type" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {misc.facilities
+                                                            {misc.bookingUnit
                                                                 .length > 0 ? (
-                                                                misc.facilities.map(
+                                                                misc.bookingUnit.map(
                                                                     (
-                                                                        facility: facilities
+                                                                        bookingUnit: BookingUnit
                                                                     ) => {
                                                                         return (
                                                                             <SelectItem
                                                                                 key={
-                                                                                    facility.id
+                                                                                    bookingUnit.name
                                                                                 }
                                                                                 value={String(
-                                                                                    facility.id
+                                                                                    bookingUnit.name
                                                                                 )}
                                                                             >
                                                                                 {
-                                                                                    facility.name
+                                                                                    bookingUnit.name
                                                                                 }
                                                                             </SelectItem>
                                                                         )
@@ -178,26 +165,7 @@ const AddLibraryFacilities = ({
                                         )}
                                     />
                                 </div>
-                                <div className="grid gap-4  mb-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="description"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>
-                                                    Description
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Textarea
-                                                        placeholder="Description"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
+
                                 <div className="w-full flex justify-end">
                                     <Button type="submit">Add</Button>
                                 </div>
@@ -210,4 +178,4 @@ const AddLibraryFacilities = ({
     )
 }
 
-export default AddLibraryFacilities
+export default AddBookingType
