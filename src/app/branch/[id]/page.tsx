@@ -26,24 +26,9 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useAppSelector } from '@/lib/hooks'
-import { CheckIcon, ChevronsUpDownIcon, Edit, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
 import LibraryLocationService from '@/services/LibraryLocationService'
-import facilityImages from '@/assets/images/facilities'
 import { useParams } from 'next/navigation'
 import { LibraryLocation } from '@/types/LibraryLocation'
 import AddRoomType from './AddRoomType'
@@ -61,6 +46,8 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import AddBookingType from './AddBookingType'
+import LibraryFacilityItem from '@/components/Custom/LibraryFacilityItem'
+import PricingTable from '@/components/Custom/PricingTable'
 
 const frameworks = [
     {
@@ -729,113 +716,7 @@ export default function EditLibraryLocation() {
                                     cardClass=" mb-0"
                                     cardContentClass="pt-1 mb-0"
                                 >
-                                    <div className="relative w-full max-h-[300px] overflow-y-auto">
-                                        <table className="w-full border-collapse text-sm">
-                                            <thead className="sticky top-0 bg-white z-20">
-                                                <tr className="bg-white border-b">
-                                                    <th className="p-2 text-left">
-                                                        Sl.No.
-                                                    </th>
-                                                    <th className="p-2 text-left">
-                                                        Room Type
-                                                    </th>
-                                                    <th className="p-2 text-left">
-                                                        Booking Type
-                                                    </th>
-                                                    <th className="p-2 text-left">
-                                                        Shift Time
-                                                    </th>
-                                                    <th className="p-2 text-left">
-                                                        Price
-                                                    </th>
-                                                    <th className="p-2 text-left">
-                                                        Action
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {event.libraryLocation
-                                                    ?.libraryShifts &&
-                                                event.libraryLocation
-                                                    .libraryShifts.length >
-                                                    0 ? (
-                                                    event.libraryLocation.libraryShifts.map(
-                                                        (shift, i) => (
-                                                            <tr className="border-b last:border-0">
-                                                                <td className="p-2">
-                                                                    {i + 1}
-                                                                </td>
-                                                                <td className="p-2">
-                                                                    {
-                                                                        shift
-                                                                            .roomType
-                                                                            .roomType
-                                                                    }
-                                                                </td>
-                                                                <td className="p-2">
-                                                                    {
-                                                                        shift
-                                                                            .bookingUnit
-                                                                            .bookingUnit
-                                                                    }
-                                                                </td>
-                                                                <td className="p-2">
-                                                                    {
-                                                                        shift.period
-                                                                    }
-                                                                </td>
-                                                                <td className="p-2">
-                                                                    {parseFloat(
-                                                                        shift.rate
-                                                                    ).toFixed(
-                                                                        2
-                                                                    )}
-                                                                </td>
-                                                                <td className="p-2 flex gap-2">
-                                                                    <Edit
-                                                                        size={
-                                                                            18
-                                                                        }
-                                                                        className="text-purple-700 cursor-pointer"
-                                                                    />
-                                                                    <Trash2
-                                                                        size={
-                                                                            18
-                                                                        }
-                                                                        className="text-purple-700 cursor-pointer"
-                                                                        onClick={async () => {
-                                                                            try {
-                                                                                const resp =
-                                                                                    await LibraryLocationService.deleteLibraryShiftAndPrice(
-                                                                                        shift.id
-                                                                                    )
-                                                                                if (
-                                                                                    resp
-                                                                                        .data
-                                                                                        .success
-                                                                                ) {
-                                                                                    getLibraryLocation()
-                                                                                }
-                                                                            } catch {}
-                                                                        }}
-                                                                    />
-                                                                </td>
-                                                            </tr>
-                                                        )
-                                                    )
-                                                ) : (
-                                                    <tr>
-                                                        <td
-                                                            colSpan={6}
-                                                            className="text-center py-3"
-                                                        >
-                                                            No Record Found
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <PricingTable libraryShifts={event.libraryLocation?.libraryShifts || []} />
                                 </BaseCard>
                             </div>
                         </div>
@@ -884,36 +765,10 @@ export default function EditLibraryLocation() {
                                             },
                                             idx: number
                                         ) => (
-                                            <div
-                                                key={facilites.id ?? idx}
-                                                className="border p-3  rounded-md box-border flex flex-wrap justify-center flex-col"
-                                            >
-                                                {/* <div className="flex gap-2 justify-end items-center">
-                                                    <Trash2
-                                                        size={20}
-                                                        className="text-purple-800 cursor-pointer"
-                                                    />
-                                                </div> */}
-                                                <div className='flex flex-col justify-evenly items-center'>
-                                                    <img
-                                                        src={
-                                                            facilityImages[
-                                                                facilites.facility.imageUrl
-                                                            ] ? facilityImages[
-                                                                facilites.facility.imageUrl
-                                                            ]['src'] : '/file.svg'
-                                                        }
-                                                        alt={facilites.facility.name}
-                                                        className="w-15"
-                                                    />
-                                                    <h2 className="font-bold text-md">
-                                                        {
-                                                            facilites.facility
-                                                                .name
-                                                        }
-                                                    </h2>
-                                                </div>
-                                            </div>
+                                            <LibraryFacilityItem
+                                                facilites={facilites}
+                                                idx={idx}
+                                            />
                                         )
                                     )}
                                 </div>

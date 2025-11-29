@@ -1,23 +1,35 @@
 import AxiosService from './AxiosService'
 
 class MiscellaneousService {
-    async getCities() {
-        return await AxiosService.get('misc/cities')
+    async getCities(data = {}) {
+        return await AxiosService.get('misc/cities', {
+            params: data,
+        })
     }
-    async getStates() {
-        return await AxiosService.get('misc/states')
+    async getStates(data = {}) {
+        return await AxiosService.get('misc/states', {
+            params: data,
+        })
     }
-    async getCountry() {
-        return await AxiosService.get('misc/country')
+    async getCountry(data = {}) {
+        return await AxiosService.get('misc/country', {
+            params: data,
+        })
     }
-    async getRoomType() {
-        return await AxiosService.get('misc/roomType')
+    async getRoomType(data = {}) {
+        return await AxiosService.get('misc/roomType', {
+            params: data,
+        })
     }
-    async getBookingUnit() {
-        return await AxiosService.get('misc/bookingUnit')
+    async getBookingUnit(data = {}) {
+        return await AxiosService.get('misc/bookingUnit', {
+            params: data,
+        })
     }
-    async getFacilites() {
-        return await AxiosService.get('misc/facilities')
+    async getFacilites(data = {}) {
+        return await AxiosService.get('misc/facilities', {
+            params: data,
+        })
     }
 }
 

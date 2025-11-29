@@ -4,6 +4,7 @@ import './globals.css'
 import StoreProvider from './StoreProvider'
 import RouteProvider from './providers/RouteProvider'
 import { Toaster } from '@/components/ui/sonner'
+// import { useEffect } from 'react'
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -25,7 +26,10 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode
 }>) {
-    // useEffect(() => {}, [])
+   
+    // useEffect(() => {
+    //     console.log("main layout 1")
+    // }, [])
     return (
         <html lang="en">
             <body

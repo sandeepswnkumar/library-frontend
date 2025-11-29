@@ -17,7 +17,7 @@ type Props = {
     isFooterEnabled?: boolean
     cardContentClass?: string
     cardClass?: string
-    headerButton: headerButtonType[]
+    headerButton?: headerButtonType[]
 }
 
 const BaseCard = ({

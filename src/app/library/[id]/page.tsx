@@ -15,7 +15,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form'
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import {
     Select,
     SelectContent,
@@ -26,13 +26,11 @@ import {
 import LibraryService from '@/services/LibraryService'
 import { useAppSelector } from '@/lib/hooks'
 import { useParams, useRouter } from 'next/navigation'
-import AddLibraryFacilities from '../../branch/[id]/AddLibraryFacilities'
 import AddLibraryLocation from './AddLibraryLocation'
 import { Switch } from '@/components/ui/switch'
 import { Edit, ExternalLink, Trash2 } from 'lucide-react'
 import LibraryLocationService from '@/services/LibraryLocationService'
 import Link from 'next/link'
-import { Library } from '@/types/LibraryType'
 
 export default function EditLibrary() {
     // const id = (props as { params?: { id?: string } })?.params?.id
@@ -90,7 +88,7 @@ export default function EditLibrary() {
         libraryName: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
-        dimension: z.string().optional(),
+        dimension: z.number().optional(),
         floor: z.number().optional(),
         capacity: z.number().optional(),
         statusId: z.number().min(1, {
@@ -105,7 +103,7 @@ export default function EditLibrary() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             libraryName: '',
-            dimension: '',
+            dimension: 0,
             floor: 0,
             capacity: 0,
             statusId: 0,
@@ -142,9 +140,9 @@ export default function EditLibrary() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const resp = await LibraryService.createLibrary(values)
+            const resp = await LibraryService.updateLibrary(id, values)
             if (resp.data.success) {
-                router.push(`/library/${resp.data.id}`)
+                getLibraryDetails()
             }
         } catch (err) {}
     }
@@ -331,8 +329,9 @@ export default function EditLibrary() {
                                             <FormLabel>Diamention</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="Diamention"
                                                     {...field}
+                                                    placeholder="Dimension"
+                                                    type='number'
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -347,9 +346,9 @@ export default function EditLibrary() {
                                             <FormLabel>Floor</FormLabel>
                                             <FormControl>
                                                 <Input
+                                                    {...field}
                                                     type="number"
                                                     placeholder="Floor"
-                                                    {...field}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -364,9 +363,9 @@ export default function EditLibrary() {
                                             <FormLabel>Capacity</FormLabel>
                                             <FormControl>
                                                 <Input
+                                                    {...field}
                                                     type="number"
                                                     placeholder="Capacity"
-                                                    {...field}
                                                 />
                                             </FormControl>
                                             <FormMessage />

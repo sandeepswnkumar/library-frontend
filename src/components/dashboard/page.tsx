@@ -2,6 +2,7 @@ import { assets } from '@/assets/assets'
 import Image from 'next/image'
 import React from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const cardItems = [
     {
@@ -45,7 +46,9 @@ const cardItems = [
 function DashBoardHero() {
     const router = useRouter()
     const handleNavigate = (item: any) => {
+        console.log("item L ", item)
         if (item.isDisabled) return null
+
         return router.push(item.url)
     }
     return (
@@ -53,13 +56,13 @@ function DashBoardHero() {
             {/* Card Grid */}
             <div className="grid xl:grid-cols-4 gap-10">
                 {cardItems.map((item, index) => (
-                    <div
+                    <Link
                         key={index}
                         className="shadow-md w-full pt-11 pb-11 cursor-pointer rounded-[12px]
                        bg-purple-950 transition-all duration-300
                        hover:scale-105 hover:shadow-2xl hover:bg-purple-900/95
                        hover:ring-2 hover:ring-purple-800 hover:-translate-y-1"
-                        onClick={() => handleNavigate(item)}
+                       href={item.url}
                     >
                         <section className="flex flex-col items-center justify-center text-white">
                             <Image
@@ -73,7 +76,7 @@ function DashBoardHero() {
                                 {item.title}
                             </p>
                         </section>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </div>

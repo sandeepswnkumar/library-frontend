@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation'
 import Loader from '@/components/Custom/Loader'
 import Image from 'next/image'
 import { assets } from '@/assets/assets'
+import { getInitalData } from '@/app/providers/RouteProvider'
 
 export default function AdminLogin() {
     const formRef = useRef<HTMLFormElement | null>(null)
@@ -28,12 +29,11 @@ export default function AdminLogin() {
     const router = useRouter()
     const token = window.localStorage.getItem('_token')
 
-    if(token){
+    if (token) {
         console.log('dsd', token)
         router.push('/')
     }
     useEffect(() => {
-        
         if (!token) {
             router.push('/admin/login')
         } else if (auth && auth?.isAuthenticated) {
@@ -61,8 +61,11 @@ export default function AdminLogin() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             const resp = await AuthService.adminLogin(values)
-            window.localStorage.setItem('_token', resp.data.data.token)
-            dispatch(setUser(resp.data.data))
+            if (resp.data.success) {
+                window.localStorage.setItem('_token', resp.data.data.token)
+                dispatch(setUser(resp.data.data))
+                getInitalData(dispatch)
+            }
         } catch (err) {
             console.log('err', err)
         }
@@ -77,11 +80,11 @@ export default function AdminLogin() {
                         onSubmit={form.handleSubmit(onSubmit)}
                         className="col-span-8 lg:col-span-4 xl:col-span-2 flex flex-col justify-center items-center w-full h-full"
                         style={{
-                        background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${assets.AdminBGImage.src})`,
-                        backgroundPosition: 'center',
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                    }}
+                            background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${assets.AdminBGImage.src})`,
+                            backgroundPosition: 'center',
+                            backgroundSize: 'cover',
+                            backgroundRepeat: 'no-repeat',
+                        }}
                     >
                         <div className="h-full flex flex-col justify-center items-center bg-white  px-4 w-70 gap-4">
                             <FormField

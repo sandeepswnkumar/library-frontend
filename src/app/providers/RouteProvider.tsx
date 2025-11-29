@@ -33,13 +33,18 @@ export default function RouteProvider({
     const dispatch = useAppDispatch()
     const fetchedRef = useRef(false)
     const isLoading = useRef(false)
+    console.log("pathname === ", pathname)
+    const token = localStorage.getItem('_token')
+    if (token && ['/login', '/admin/login'].includes(pathname)) {
+        router.push('/')
+    }
 
     const getCurrentUser = async () => {
         try {
             const resp = await AuthService.getCurrentUser()
             if (resp?.data?.success) {
                 dispatch(setUser(resp.data.data))
-                getInitalData()
+                getInitalData(dispatch)
                 if (
                     resp.data?.data?.userTypeId == userTypeEnum.USER &&
                     !resp.data?.data?.isOnboardingCompleted
@@ -48,75 +53,10 @@ export default function RouteProvider({
                 }
             }
         } catch (err) {
-            console.log('error', err)
         } finally {
             isLoading.current = false
             fetchedRef.current = true
         }
-    }
-
-    const getInitalData = async () => {
-        try {
-            const [
-                libaryStatus,
-                libaryType,
-                cities,
-                states,
-                country,
-                roomType,
-                bookingUnit,
-                facilities
-            ] = await Promise.allSettled([
-                LibraryService.getLibraryStatus(),
-                LibraryService.getLibraryType(),
-                MiscellaneousService.getCities(),
-                MiscellaneousService.getStates(),
-                MiscellaneousService.getCountry(),
-                MiscellaneousService.getRoomType(),
-                MiscellaneousService.getBookingUnit(),
-                MiscellaneousService.getFacilites(),
-            ])
-
-            if (cities.status == 'fulfilled' && cities?.value.data?.success) {
-                dispatch(setCities(cities.value.data.data))
-            }
-            if (states.status == 'fulfilled' && states?.value.data?.success) {
-                dispatch(setStates(states.value.data.data))
-            }
-            if (country.status == 'fulfilled' && country?.value.data?.success) {
-                dispatch(setCountry(country.value.data.data))
-            }
-            if (
-                libaryStatus.status == 'fulfilled' &&
-                libaryStatus?.value.data?.success
-            ) {
-                dispatch(setLibraryStatus(libaryStatus.value.data.data))
-            }
-            if (
-                libaryType.status == 'fulfilled' &&
-                libaryType?.value.data?.success
-            ) {
-                dispatch(setLibraryType(libaryType.value.data.data))
-            }
-            if (
-                roomType.status == 'fulfilled' &&
-                roomType?.value.data?.success
-            ) {
-                dispatch(setRoomType(roomType.value.data.data))
-            }
-            if (
-                bookingUnit.status == 'fulfilled' &&
-                bookingUnit?.value.data?.success
-            ) {
-                dispatch(setBookingUnit(bookingUnit.value.data.data))
-            }
-            if (
-                facilities.status == 'fulfilled' &&
-                facilities?.value.data?.success
-            ) {
-                dispatch(setFacilities(facilities.value.data.data))
-            }
-        } catch {}
     }
 
     useEffect(() => {
@@ -135,4 +75,67 @@ export default function RouteProvider({
     }
 
     return <>{children}</>
+}
+
+export const getInitalData = async (dispatch) => {
+    try {
+        const [
+            libaryStatus,
+            libaryType,
+            cities,
+            states,
+            country,
+            roomType,
+            bookingUnit,
+            facilities,
+        ] = await Promise.allSettled([
+            LibraryService.getLibraryStatus({ initalCall: true }),
+            LibraryService.getLibraryType({ initalCall: true }),
+            MiscellaneousService.getCities({ initalCall: true }),
+            MiscellaneousService.getStates({ initalCall: true }),
+            MiscellaneousService.getCountry({ initalCall: true }),
+            MiscellaneousService.getRoomType({ initalCall: true }),
+            MiscellaneousService.getBookingUnit({ initalCall: true }),
+            MiscellaneousService.getFacilites({ initalCall: true }),
+        ])
+
+        if (cities.status == 'fulfilled' && cities?.value.data?.success) {
+            dispatch(setCities(cities.value.data.data))
+        }
+        if (states.status == 'fulfilled' && states?.value.data?.success) {
+            dispatch(setStates(states.value.data.data))
+        }
+        if (country.status == 'fulfilled' && country?.value.data?.success) {
+            dispatch(setCountry(country.value.data.data))
+        }
+        if (
+            libaryStatus.status == 'fulfilled' &&
+            libaryStatus?.value.data?.success
+        ) {
+            dispatch(setLibraryStatus(libaryStatus.value.data.data))
+        }
+        if (
+            libaryType.status == 'fulfilled' &&
+            libaryType?.value.data?.success
+        ) {
+            dispatch(setLibraryType(libaryType.value.data.data))
+        }
+        if (roomType.status == 'fulfilled' && roomType?.value.data?.success) {
+            dispatch(setRoomType(roomType.value.data.data))
+        }
+        if (
+            bookingUnit.status == 'fulfilled' &&
+            bookingUnit?.value.data?.success
+        ) {
+            dispatch(setBookingUnit(bookingUnit.value.data.data))
+        }
+        if (
+            facilities.status == 'fulfilled' &&
+            facilities?.value.data?.success
+        ) {
+            dispatch(setFacilities(facilities.value.data.data))
+        }
+    } catch (err) {
+        console.log('err', err)
+    }
 }

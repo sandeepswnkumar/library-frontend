@@ -20,17 +20,17 @@ class LibraryService {
     async deleteLibrary(id: string) {
         return await AxiosService.delete(`library/${id}`)
     }
-    async updateLibrary(libraryId: number, libraryData: LibraryUpdateType) {
+    async updateLibrary(libraryId: string, libraryData: LibraryUpdateType) {
         return await AxiosService.put(`library/${libraryId}`, libraryData)
     }
 
-    async getLibraryStatus() {
+    async getLibraryStatus(data = {}) {
         return await AxiosService.get('library/library-status')
     }
-    async getLibraryType() {
+    async getLibraryType(data = {}) {
         return await AxiosService.get('library/library-type')
     }
-    async getLibraryFacilities() {
+    async getLibraryFacilities(data = {}) {
         return await AxiosService.get('library-facility')
     }
     async createLibraryFacility(value: LibraryFacilitiesType) {
