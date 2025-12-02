@@ -22,7 +22,7 @@ const CustomBreadcrumb = () => {
 
     const renderBreadcrumb = () => {
         if (!currentLocation.length) return null
-        let end = currentLocation.length - 1
+        const end = currentLocation.length - 1
         const nonLinkRoute: string[] = []
         return currentLocation.map((bread, index) => {
             if (bread == '') {
@@ -33,7 +33,9 @@ const CustomBreadcrumb = () => {
                 return (
                     <>
                         <BreadcrumbItem key={`bradcrumb-${index}`}>
-                            <BreadcrumbPage>{makeBreadcrumbText(bread)}</BreadcrumbPage>
+                            <BreadcrumbPage>
+                                {makeBreadcrumbText(bread)}
+                            </BreadcrumbPage>
                         </BreadcrumbItem>
                     </>
                 )
@@ -43,28 +45,39 @@ const CustomBreadcrumb = () => {
                 return (
                     <>
                         <BreadcrumbItem key={`bradcrumb-${index}`}>
-                            <BreadcrumbPage>{makeBreadcrumbText(bread)}</BreadcrumbPage>
+                            <BreadcrumbPage>
+                                {makeBreadcrumbText(bread)}
+                            </BreadcrumbPage>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator key={`bradcrumb-seperator-${index}`} className="hidden md:block" />
+                        <BreadcrumbSeparator
+                            key={`bradcrumb-seperator-${index}`}
+                            className="hidden md:block"
+                        />
                     </>
                 )
             }
 
             return (
                 <>
-                    <BreadcrumbItem key={`bradcrumb-${index}`} className="hidden md:block">
-                        <Link className='hover:underline' href={"/" + bread}>{makeBreadcrumbText(bread)}</Link>
+                    <BreadcrumbItem
+                        key={`bradcrumb-${index}`}
+                        className="hidden md:block"
+                    >
+                        <Link className="hover:underline" href={'/' + bread}>
+                            {makeBreadcrumbText(bread)}
+                        </Link>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator key={`bradcrumb-seperator-${index}`} className="hidden md:block" />
+                    <BreadcrumbSeparator
+                        key={`bradcrumb-seperator-${index}`}
+                        className="hidden md:block"
+                    />
                 </>
             )
         })
     }
     return (
         <Breadcrumb>
-            <BreadcrumbList>
-                {renderBreadcrumb()}
-            </BreadcrumbList>
+            <BreadcrumbList>{renderBreadcrumb()}</BreadcrumbList>
         </Breadcrumb>
     )
 }

@@ -34,43 +34,10 @@ import { LibraryLocation } from '@/types/LibraryLocation'
 import AddRoomType from './AddRoomType'
 import AddShiftAndPrice from './AddShiftAndPrice'
 import AddLibraryFacilities from './AddLibraryFacilities'
-import SearchableSelect from '@/components/Custom/SearchableSelect'
-import SearchableSelectAPI from '@/components/Custom/SearchableSelectAPI'
 import LibraryService from '@/services/LibraryService'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
 import AddBookingType from './AddBookingType'
 import LibraryFacilityItem from '@/components/Custom/LibraryFacilityItem'
 import PricingTable from '@/components/Custom/PricingTable'
-
-const frameworks = [
-    {
-        value: 'next.js',
-        label: 'Next.js',
-    },
-    {
-        value: 'sveltekit',
-        label: 'SvelteKit',
-    },
-    {
-        value: 'nuxt.js',
-        label: 'Nuxt.js',
-    },
-    {
-        value: 'remix',
-        label: 'Remix',
-    },
-    {
-        value: 'astro',
-        label: 'Astro',
-    },
-]
 
 type LibraryLocationData = {
     [key: string | number]: LibraryLocation
@@ -83,8 +50,6 @@ type LibraryEventState = {
 
 export default function EditLibraryLocation() {
     const { id } = useParams()
-    const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState('')
     const formRef = useRef<HTMLFormElement | null>(null)
     const misc = useAppSelector((state) => state.misc)
 
@@ -257,7 +222,7 @@ export default function EditLibraryLocation() {
 
                     {event.libraryLocation && (
                         <AddShiftAndPrice
-                            libraryId={event.libraryLocation.libraryId}
+                            libraryId={event.libraryLocation.library.id}
                             locationId={event.libraryLocation.id}
                             getLibraryLocation={getLibraryLocation}
                             roomtypes={event.libraryLocation.roomTypes}
@@ -625,7 +590,10 @@ export default function EditLibraryLocation() {
                                                     id: number
                                                     roomType: string
                                                 }) => (
-                                                    <div className=" bg-purple-700 rounded-xs text-sm text-white flex items-center gap-2">
+                                                    <div
+                                                        key={roomType.id}
+                                                        className=" bg-purple-700 rounded-xs text-sm text-white flex items-center gap-2"
+                                                    >
                                                         <span className="px-3 py-2 border border-transparent">
                                                             {roomType.roomType}
                                                         </span>{' '}
@@ -676,7 +644,10 @@ export default function EditLibraryLocation() {
                                                     id: number
                                                     bookingUnit: string
                                                 }) => (
-                                                    <div className=" bg-purple-700 rounded-xs text-sm text-white flex items-center gap-2">
+                                                    <div
+                                                        key={bookingUnit.id}
+                                                        className=" bg-purple-700 rounded-xs text-sm text-white flex items-center gap-2"
+                                                    >
                                                         <span className="px-3 py-2 border border-transparent">
                                                             {
                                                                 bookingUnit.bookingUnit
@@ -716,7 +687,12 @@ export default function EditLibraryLocation() {
                                     cardClass=" mb-0"
                                     cardContentClass="pt-1 mb-0"
                                 >
-                                    <PricingTable libraryShifts={event.libraryLocation?.libraryShifts || []} />
+                                    <PricingTable
+                                        libraryShifts={
+                                            event.libraryLocation
+                                                ?.libraryShifts || []
+                                        }
+                                    />
                                 </BaseCard>
                             </div>
                         </div>
@@ -766,6 +742,7 @@ export default function EditLibraryLocation() {
                                             idx: number
                                         ) => (
                                             <LibraryFacilityItem
+                                                key={idx}
                                                 facilites={facilites}
                                                 idx={idx}
                                             />

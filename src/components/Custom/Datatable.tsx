@@ -59,7 +59,7 @@ const Datatable = <T,>({
         rowCount: pageSize,
     })
 
-    const columnCount = table.getAllLeafColumns().length || columns.length
+    // const columnCount = table.getAllLeafColumns().length || columns.length
 
     const handleAllChange = (
         checked: boolean | 'indeterminate',

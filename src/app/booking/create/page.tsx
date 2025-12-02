@@ -15,7 +15,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form'
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import {
     Select,
     SelectContent,
@@ -23,7 +23,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import LibraryService from '@/services/LibraryService'
 import { useAppSelector } from '@/lib/hooks'
 import { useRouter } from 'next/navigation'
 import BookingService from '@/services/BookingService'
@@ -94,7 +93,9 @@ export default function CreateBooking() {
             if (resp.data.success) {
                 router.push(`/library/${resp.data.id}`)
             }
-        } catch (err) {}
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     const handleSaveClick = () => {
@@ -356,12 +357,12 @@ export default function CreateBooking() {
                             >
                                 <div className="flex flex-wrap justify-around items-start gap-2">
                                     {new Array(500).fill('-').map((_, i) => (
-                                        <div key={"seat + " + i}>
+                                        <div key={'seat + ' + i}>
                                             <Label
                                                 htmlFor={'r' + (i + 1)}
                                                 className=" bg-purple-600 p-2 text-xs min-w-8 min-h-8 text-white rounded-sm border flex justify-center items-center"
                                             >
-                                                {"R" + (i+1)}
+                                                {'R' + (i + 1)}
                                             </Label>
                                             <Checkbox
                                                 id={'r' + (i + 1)}
@@ -376,23 +377,26 @@ export default function CreateBooking() {
                                 cardContentClass="pt-1 "
                             >
                                 <div className="flex flex-col gap-2">
-                                    <div className='flex justify-between'>
+                                    <div className="flex justify-between">
                                         <span>Booking Amount</span>
-                                        <span className='flex items-center'>
-                                            <IndianRupee size={14} /><span>3540.00</span>
+                                        <span className="flex items-center">
+                                            <IndianRupee size={14} />
+                                            <span>3540.00</span>
                                         </span>
                                     </div>
-                                    <div className='flex justify-between text-purple-600'>
+                                    <div className="flex justify-between text-purple-600">
                                         <span>Discount (0%)</span>
-                                        <span className='flex items-center'>
-                                            -<IndianRupee size={14} /><span>00.00</span>
+                                        <span className="flex items-center">
+                                            -<IndianRupee size={14} />
+                                            <span>00.00</span>
                                         </span>
                                     </div>
                                     <hr />
-                                    <div className='flex justify-between'>
+                                    <div className="flex justify-between">
                                         <span>Total Amount</span>
-                                        <span className='flex items-center'>
-                                            <IndianRupee size={14} /><span>3540.00</span>
+                                        <span className="flex items-center">
+                                            <IndianRupee size={14} />
+                                            <span>3540.00</span>
                                         </span>
                                     </div>
                                 </div>

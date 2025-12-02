@@ -15,7 +15,6 @@ import BaseCard from '../Custom/BaseCard'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import AuthService from '@/services/AuthService'
-import { toast } from 'sonner'
 
 type RegisterFormProps = React.ComponentProps<'div'> & {
     setAuthTab?: (tab: string) => void
@@ -77,8 +76,6 @@ export default function RegisterForm({
             }
         } catch (err) {}
     }
-
-    const handleUserRegister = async () => {}
 
     return (
         <div className={cn('flex flex-col gap-6', className)} {...props}>

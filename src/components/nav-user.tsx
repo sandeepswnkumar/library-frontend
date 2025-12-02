@@ -27,36 +27,12 @@ import {
 } from '@/components/ui/sidebar'
 import AuthService from '@/services/AuthService'
 import { useRouter } from 'next/navigation'
+import { UserData } from '@/types/UserTypes'
 
-type UserDetails = {
-    id: number
-    avatar: string | null
-    fullName: string
-    firstName: string
-    middleName?: string | null
-    lastName: string
-    address1?: string | null
-}
-
-type AppUser = {
-    id: number
-    email: string
-    isOnboardingCompleted?: boolean
-    userTypeId?: number
-    userType?: {
-        id: number
-        name: string
-        createdBy: string | null
-        createdAt: string
-    }
-    userDetails: UserDetails
-}
-
-export function NavUser({ user }: { user: AppUser }) {
+export function NavUser({ user }: { user: UserData }) {
     const router = useRouter()
     const { isMobile } = useSidebar()
-
-    console.log('user', user)
+    console.log('user from NavUser', user)
 
     return (
         <SidebarMenu>

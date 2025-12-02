@@ -1,14 +1,7 @@
-"use client";
-import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { LoginForm } from "../login-form";
-import RegisterForm from "./RegisterForm";
+'use client'
 
 function AuthLayout() {
-  const [activeTab, setActiveTab] = useState("login");
-  return (
-    null
-  );
+    return null
 }
 
-export default AuthLayout;
+export default AuthLayout

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -34,17 +34,13 @@ type AddRoomTypePropsType = {
     getLibraryLocation: () => void
 }
 
-const AddRoomType = ({ libraryId, locationId, getLibraryLocation }: AddRoomTypePropsType) => {
+const AddRoomType = ({
+    libraryId,
+    locationId,
+    getLibraryLocation,
+}: AddRoomTypePropsType) => {
     const [open, setOpen] = useState<boolean>(false)
     const misc = useAppSelector((state) => state.misc)
-    const [event, updateEvent] = useReducer(
-        (prev, next) => {
-            return { ...prev, ...next }
-        },
-        {
-            open: false,
-        }
-    )
     const formSchema = z.object({
         libraryId: z.number(),
         libraryLocationId: z.number(),
