@@ -17,8 +17,6 @@ import AuthService from '@/services/AuthService'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { setUser } from '@/lib/features/auth/AuthSlice'
 import { useRouter } from 'next/navigation'
-import Loader from '@/components/Custom/Loader'
-import Image from 'next/image'
 import { assets } from '@/assets/assets'
 import { getInitalData } from '@/app/providers/RouteProvider'
 

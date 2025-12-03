@@ -43,7 +43,7 @@ export function sanitizeObject(
 ): Record<string, any> {
     if (typeof obj !== 'object' || obj === null) return obj
 
-    for (let ob_key of Object.keys(obj)) {
+    for (const ob_key of Object.keys(obj)) {
         const value = obj[ob_key]
         if (typeof value === 'string') {
             obj[ob_key] = value.trim()

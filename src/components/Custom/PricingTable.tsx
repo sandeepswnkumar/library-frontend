@@ -3,7 +3,19 @@ import { useAppSelector } from '@/lib/hooks'
 import { Edit, Trash2 } from 'lucide-react'
 import React from 'react'
 
-const PricingTable = ({ libraryShifts = [] }: { libraryShifts: [] }) => {
+type LibraryShift = {
+    id: number
+    roomType: { roomType: string }
+    bookingUnit: { bookingUnit: string }
+    period: string
+    rate: string
+}
+
+const PricingTable = ({
+    libraryShifts = [],
+}: {
+    libraryShifts: LibraryShift[]
+}) => {
     const auth = useAppSelector((state) => state.auth)
     return (
         <div className="relative w-full max-h-[300px] overflow-y-auto">
@@ -25,7 +37,7 @@ const PricingTable = ({ libraryShifts = [] }: { libraryShifts: [] }) => {
                 <tbody>
                     {libraryShifts.length > 0 ? (
                         libraryShifts.map((shift, i) => (
-                            <tr className="border-b last:border-0">
+                            <tr key={i} className="border-b last:border-0">
                                 <td className="p-2">{i + 1}</td>
                                 <td className="p-2">
                                     {shift.roomType.roomType}
@@ -50,13 +62,13 @@ const PricingTable = ({ libraryShifts = [] }: { libraryShifts: [] }) => {
                                                 className="text-purple-700 cursor-pointer"
                                                 onClick={async () => {
                                                     try {
-                                                        const resp =
-                                                            await LibraryLocationService.deleteLibraryShiftAndPrice(
-                                                                shift.id
-                                                            )
-                                                        if (resp.data.success) {
-                                                            getLibraryLocation()
-                                                        }
+                                                        // const resp =
+                                                        //     await LibraryLocationService.deleteLibraryShiftAndPrice(
+                                                        //         shift.id
+                                                        //     )
+                                                        // if (resp.data.success) {
+                                                        //     getLibraryLocation()
+                                                        // }
                                                     } catch {}
                                                 }}
                                             />

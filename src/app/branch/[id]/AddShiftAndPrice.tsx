@@ -30,12 +30,25 @@ import { IndianRupee } from 'lucide-react'
 import { LibraryBookingType } from '@/types/LibraryType'
 import { convertTo12Hour } from '@/lib/utils'
 
+// type LibraryRoomType = {
+//     id: number
+//     roomType: string
+// }
+
+// type AddShiftAndPricePropsType = {
+//     libraryId: number
+//     locationId: number
+//     roomtypes: LibraryRoomType[]
+//     libraryBookingUnit: LibraryBookingType[]
+//     getLibraryLocation: () => void
+// }
 type LibraryRoomType = {
     id: number
+    libraryLocationId: number
     roomType: string
 }
 
-type AddShiftAndPricePropsType = {
+type AddShiftAndPriceProps = {
     libraryId: number
     locationId: number
     roomtypes: LibraryRoomType[]
@@ -49,7 +62,7 @@ const AddShiftAndPrice = ({
     roomtypes,
     libraryBookingUnit,
     getLibraryLocation,
-}: AddShiftAndPricePropsType) => {
+}: AddShiftAndPriceProps) => {
     const [open, setOpen] = useState<boolean>(false)
     const formSchema = z.object({
         libraryId: z.number(),
@@ -71,9 +84,10 @@ const AddShiftAndPrice = ({
             message: 'End time is required',
         }),
 
-        rate: z.string().min(2, {
+        rate: z.number().min(0, {
             message: 'Rate is required',
         }),
+        period: z.string(),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -86,6 +100,7 @@ const AddShiftAndPrice = ({
             startTime: '',
             endTime: '',
             rate: 0,
+            period: '',
         },
     })
 
@@ -97,9 +112,10 @@ const AddShiftAndPrice = ({
             libraryBookingUnitId: 0,
             startTime: '',
             endTime: '',
-            rate: '',
+            rate: 0,
+            period: '',
         })
-    }, [])
+    }, [form, libraryId, locationId])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -108,7 +124,7 @@ const AddShiftAndPrice = ({
                 convertTo12Hour(values['startTime']) +
                 ' - ' +
                 convertTo12Hour(values['endTime'])
-            values['rate'] = parseFloat(parseFloat(values['rate']).toFixed(2))
+            values.rate = Number(values.rate.toFixed(2))
             const resp = await LibraryService.createLibraryShiftAndPrice(values)
             if (resp.data.success) {
                 setOpen(false)
@@ -245,7 +261,7 @@ const AddShiftAndPrice = ({
                                                             0 ? (
                                                                 libraryBookingUnit.map(
                                                                     (bookingUnit: {
-                                                                        id: string
+                                                                        id?: string
                                                                         bookingUnit: string
                                                                     }) => {
                                                                         return (

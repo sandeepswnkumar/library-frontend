@@ -2,56 +2,11 @@
 import BaseCard from '@/components/Custom/BaseCard'
 import SubHeaderCard from '@/components/Custom/SubHeaderCard'
 import Container from '@/components/layout/Container'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import React, { useEffect, useReducer } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { useAppSelector } from '@/lib/hooks'
-import { CheckIcon, ChevronsUpDownIcon, Library } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from '@/components/ui/carousel'
 import { useParams } from 'next/navigation'
 import LibraryLocationService from '@/services/LibraryLocationService'
 import LibraryFacilityItem from '@/components/Custom/LibraryFacilityItem'
@@ -61,12 +16,38 @@ export default function LocationDetail() {
     const { locationId }: { locationId: string } = useParams()
     const misc = useAppSelector((state) => state.misc)
 
+    type LibraryLocationType = {
+        id: number
+        locationName: string
+        library: {
+            libraryName: string
+        }
+        address1: string
+        address2: string
+        city: { name: string }
+        state: { name: string }
+        country: { name: string; phonecode: string }
+        pincode: string
+        phone: string
+        email: string
+        libraryFacilities: {
+            id: number
+            facility: {
+                id: number
+                name: string
+                imageUrl: string
+            }
+        }[]
+        libraryShifts: any[]
+    }
+
     const [event, updateEvent] = useReducer(
-        (prev, next) => {
-            return { ...prev, ...next }
-        },
+        (prev: { libraryLocation?: LibraryLocationType }, next) => ({
+            ...prev,
+            ...next,
+        }),
         {
-            libraryLocation: {},
+            libraryLocation: undefined,
         }
     )
 
@@ -75,6 +56,8 @@ export default function LocationDetail() {
             const resp = await LibraryLocationService.getLibraryLocation(
                 Number(locationId)
             )
+            console.log(':::REs', resp)
+
             if (resp.data.success) {
                 updateEvent({ libraryLocation: resp.data.data })
             }
@@ -84,9 +67,7 @@ export default function LocationDetail() {
         getLibraryLocationDetails()
     }, [locationId])
 
-    if (!event.libraryLocation?.library) {
-        return null
-    }
+    if (!event.libraryLocation) return null
     // conso
     return (
         <Container>
@@ -214,6 +195,7 @@ export default function LocationDetail() {
                                     idx: number
                                 ) => (
                                     <LibraryFacilityItem
+                                        key={idx}
                                         facilites={facilites}
                                         idx={idx}
                                     />

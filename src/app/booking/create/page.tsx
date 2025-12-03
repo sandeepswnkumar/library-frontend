@@ -15,7 +15,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form'
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import {
     Select,
     SelectContent,
@@ -23,7 +23,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import LibraryService from '@/services/LibraryService'
 import { useAppSelector } from '@/lib/hooks'
 import { useRouter, useSearchParams } from 'next/navigation'
 import BookingService from '@/services/BookingService'
@@ -128,7 +127,9 @@ export default function CreateBooking() {
             if (resp.data.success) {
                 router.push(`/library/${resp.data.id}`)
             }
-        } catch (err) {}
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     const handleSaveClick = () => {

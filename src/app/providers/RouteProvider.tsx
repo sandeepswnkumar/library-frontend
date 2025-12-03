@@ -57,6 +57,7 @@ export default function RouteProvider({
     const getCurrentUser = async () => {
         try {
             const resp = await AuthService.getCurrentUser()
+
             if (resp?.data?.success) {
                 dispatch(setUser(resp.data.data))
                 getInitalData(dispatch)
@@ -92,7 +93,7 @@ export default function RouteProvider({
     return <>{children}</>
 }
 
-export const getInitalData = async (dispatch) => {
+export const getInitalData = async (dispatch: any) => {
     try {
         const [
             libaryStatus,
