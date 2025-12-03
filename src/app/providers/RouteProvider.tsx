@@ -33,15 +33,19 @@ export default function RouteProvider({
     const dispatch = useAppDispatch()
     const fetchedRef = useRef(false)
     const isLoading = useRef(false)
-    console.log("pathname === ", pathname)
-    const token = localStorage.getItem('_token')
-    if (token && ['/login', '/admin/login'].includes(pathname)) {
-        router.push('/')
-    }
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('_token')
+            if (token && ['/login', '/admin/login'].includes(pathname)) {
+                router.push('/')
+            }
+        }
+    }, [pathname, router])
 
     const getCurrentUser = async () => {
         try {
             const resp = await AuthService.getCurrentUser()
+
             if (resp?.data?.success) {
                 dispatch(setUser(resp.data.data))
                 getInitalData(dispatch)
@@ -77,7 +81,7 @@ export default function RouteProvider({
     return <>{children}</>
 }
 
-export const getInitalData = async (dispatch) => {
+export const getInitalData = async (dispatch: any) => {
     try {
         const [
             libaryStatus,

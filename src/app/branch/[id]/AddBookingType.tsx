@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -34,17 +34,13 @@ type AddRoomTypePropsType = {
     getLibraryLocation: () => void
 }
 
-const AddBookingType = ({ libraryId, locationId, getLibraryLocation }: AddRoomTypePropsType) => {
+const AddBookingType = ({
+    libraryId,
+    locationId,
+    getLibraryLocation,
+}: AddRoomTypePropsType) => {
     const [open, setOpen] = useState<boolean>(false)
     const misc = useAppSelector((state) => state.misc)
-    const [event, updateEvent] = useReducer(
-        (prev, next) => {
-            return { ...prev, ...next }
-        },
-        {
-            open: false,
-        }
-    )
     const formSchema = z.object({
         libraryId: z.number(),
         libraryLocationId: z.number(),
@@ -77,7 +73,6 @@ const AddBookingType = ({ libraryId, locationId, getLibraryLocation }: AddRoomTy
         } catch {}
     }
 
-
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <Button
@@ -103,7 +98,9 @@ const AddBookingType = ({ libraryId, locationId, getLibraryLocation }: AddRoomTy
                                         name="bookingUnit"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Booking Type</FormLabel>
+                                                <FormLabel>
+                                                    Booking Type
+                                                </FormLabel>
                                                 <FormControl>
                                                     <Select
                                                         {...field}

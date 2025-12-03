@@ -1,11 +1,8 @@
 'use client'
 import BaseCard from '@/components/Custom/BaseCard'
-import SubHeaderCard from '@/components/Custom/SubHeaderCard'
 import Container from '@/components/layout/Container'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import React from 'react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -25,24 +22,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { useAppSelector } from '@/lib/hooks'
-import { CheckIcon, ChevronsUpDownIcon, Library } from 'lucide-react'
-
-import { cn } from '@/lib/utils'
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
+import { Library } from 'lucide-react'
 
 const BookNow = () => {
     const misc = useAppSelector((state) => state.misc)
@@ -124,9 +105,9 @@ const BookNow = () => {
                     <BaseCard cardClass="">
                         <div className="w-full grid grid-cols-4  gap-4 mb-4">
                             <ChooseLibrary misc={misc} form={form} />
-                            <div className='flex justify-between flex-col'>
+                            <div className="flex justify-between flex-col">
                                 <Label>Search Library</Label>
-                                <Input placeholder='Library Name' />
+                                <Input placeholder="Library Name" />
                             </div>
                         </div>
                         <h2 className="mb-2 font-medium">Libraries</h2>

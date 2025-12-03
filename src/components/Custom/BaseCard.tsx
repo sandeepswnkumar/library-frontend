@@ -35,13 +35,14 @@ const BaseCard = ({
                         <span>{cardTitle}</span>
                         {headerButton.length > 0 && (
                             <div>
-                                {headerButton.map((button) => {
+                                {headerButton.map((button, index) => {
                                     if (button.type == 'ADD') {
                                         if (button.subType == 'MODAL') {
                                             return button.action
                                         }
                                         return (
                                             <PlusCircle
+                                                key={index}
                                                 className="text-purple-700 cursor-pointer"
                                                 size={16}
                                             />
