@@ -5,7 +5,6 @@ import React from 'react'
 
 const PricingTable = ({ libraryShifts = [] }: { libraryShifts: [] }) => {
     const auth = useAppSelector((state) => state.auth)
-    console.log('auth?.currentUser === ', auth?.currentUser)
     return (
         <div className="relative w-full max-h-[300px] overflow-y-auto">
             <table className="w-full border-collapse text-sm">

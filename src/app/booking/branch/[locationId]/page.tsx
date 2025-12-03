@@ -97,7 +97,8 @@ export default function LocationDetail() {
                 <div className="flex  gap-2">
                     {event.libraryLocation && (
                         <Link
-                            href={`/booking/create?branch=${event.libraryLocation.id}`}
+                            href={`/booking/user-booking/${event.libraryLocation.id}`}
+                            target='_blank'
                         >
                             <Button>Book Now</Button>
                         </Link>

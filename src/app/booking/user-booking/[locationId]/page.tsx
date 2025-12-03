@@ -25,21 +25,26 @@ import {
 } from '@/components/ui/select'
 import LibraryService from '@/services/LibraryService'
 import { useAppSelector } from '@/lib/hooks'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import BookingService from '@/services/BookingService'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { IndianRupee } from 'lucide-react'
 import LibraryLocationService from '@/services/LibraryLocationService'
+import userTypeEnum from '@/Enums/UserTypeEnum'
 
-export default function CreateBooking() {
+export default function UserBooking() {
+    const auth = useAppSelector((state) => state.auth)
+    const { locationId } = useParams()
     const formSchema = z.object({
+        libraryName: z.string(),
         libraryId: z.string().min(2, {
             message: 'Library name must be at least 2 characters.',
         }),
         libraryLocationId: z.string().min(2, {
             message: 'Branch must be at least 2 characters.',
         }),
+        locationName: z.string(),
         roomType: z.string().min(2, {
             message: 'Room Type must be at least 2 characters.',
         }),
@@ -54,17 +59,14 @@ export default function CreateBooking() {
             .gt(12, {
                 message: 'No of month will be not be greater then 12',
             }),
-        startDate: z.string(),
-        startTime: z.string(),
+        shiftPeriod: z.string(),
     })
-
-    const searchParams = useSearchParams()
-    const brnachId = searchParams.get('branch')
     const [event, updateEvent] = useReducer(
         (prev, next) => {
             return { ...prev, ...next }
         },
         {
+            libraryLocation: null,
             libraryStatus: [],
             libraryTypes: [],
         }
@@ -77,12 +79,13 @@ export default function CreateBooking() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             libraryId: '',
+            libraryName: '',
             libraryLocationId: '',
+            locationName: '',
             roomType: '',
             unit: '',
             noOfUnit: 0,
-            startDate: '',
-            startTime: '',
+            shiftPeriod: '',
         },
     })
 
@@ -91,22 +94,32 @@ export default function CreateBooking() {
             libraryStatus: libraryState.status,
             libraryTypes: libraryState.types,
         })
-
-        
     }, [libraryState])
-
     
+    if (event.libraryLocation) {
+        console.log(
+            'period  ==== ',
+            event.libraryLocation?.libraryShifts.filter(
+                (value) =>
+                    value.libraryBookingUnitId == form.getValues('unit') &&
+                    value.libraryRoomTypeId == form.getValues('roomType')
+            )
+        )
+    }
     const getLibraryDetails = async () => {
         try {
             const resp = await LibraryLocationService.getLibraryLocation(
-                Number(brnachId)
+                Number(locationId)
             )
-            console.log('resp=== ', resp)
             if (resp.data.success) {
                 const libraryLocation = resp.data.data
+                updateEvent({ libraryLocation: libraryLocation })
                 form.reset({
                     libraryId: String(libraryLocation.libraryId),
                     libraryLocationId: String(libraryLocation.id),
+                    libraryName: libraryLocation.library.libraryName,
+                    locationName: libraryLocation.locationName,
+                    libraryShiftId: 0,
                     roomType: '',
                     unit: '',
                     noOfUnit: 0,
@@ -117,10 +130,21 @@ export default function CreateBooking() {
         } catch {}
     }
     useEffect(() => {
-        if (brnachId) {
+        if (locationId) {
             getLibraryDetails()
         }
-    }, [brnachId])
+    }, [locationId])
+
+    const calculatePrice = () => {
+        let roomType = form.getValues('roomType')
+        let unit = form.getValues('unit')
+        let noOfUnit = form.getValues('noOfUnit') || 0
+        let priceTable = event.libraryLocation?.libraryShifts || []
+        if (unit && roomType && priceTable.length) {
+            let selectedShift = priceTable.find((val) => val)
+            let totalPrice = 0
+        }
+    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -163,35 +187,15 @@ export default function CreateBooking() {
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 <FormField
                                     control={form.control}
-                                    name="libraryId"
+                                    name="libraryName"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Library Name</FormLabel>
                                             <FormControl>
-                                                <Select
-                                                    {...field}
-                                                    value={String(
-                                                        field.value || ''
-                                                    )}
-                                                    onValueChange={(value) =>
-                                                        field.onChange(
-                                                            Number(value)
-                                                        )
-                                                    }
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Library Name" />
-                                                    </SelectTrigger>
-
-                                                    <SelectContent>
-                                                        <SelectItem
-                                                            key="AC"
-                                                            value="AC"
-                                                        >
-                                                            AC
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <Input
+                                                    value={field.value}
+                                                    disabled={true}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -199,59 +203,15 @@ export default function CreateBooking() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="libraryLocationId"
+                                    name="locationName"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Branch</FormLabel>
                                             <FormControl>
-                                                <Select
-                                                    {...field}
-                                                    value={String(
-                                                        field.value || ''
-                                                    )}
-                                                    onValueChange={(value) =>
-                                                        field.onChange(
-                                                            Number(value)
-                                                        )
-                                                    }
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Branch" />
-                                                    </SelectTrigger>
-
-                                                    <SelectContent>
-                                                        {event.libraryStatus
-                                                            .length > 0 ? (
-                                                            event.libraryStatus.map(
-                                                                (status: {
-                                                                    id: number
-                                                                    name: string
-                                                                }) => (
-                                                                    <SelectItem
-                                                                        key={
-                                                                            status.id
-                                                                        }
-                                                                        value={String(
-                                                                            status.id
-                                                                        )}
-                                                                    >
-                                                                        {
-                                                                            status.name
-                                                                        }
-                                                                    </SelectItem>
-                                                                )
-                                                            )
-                                                        ) : (
-                                                            <SelectItem
-                                                                key="StatusNoRecord"
-                                                                value="null"
-                                                                disabled={true}
-                                                            >
-                                                                No Record found
-                                                            </SelectItem>
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
+                                                <Input
+                                                    value={field.value}
+                                                    disabled={true}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -269,23 +229,47 @@ export default function CreateBooking() {
                                                     value={String(
                                                         field.value || ''
                                                     )}
-                                                    onValueChange={(value) =>
+                                                    onValueChange={(value) => {
                                                         field.onChange(
                                                             Number(value)
                                                         )
-                                                    }
+                                                        calculatePrice()
+                                                    }}
                                                 >
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Room Type" />
                                                     </SelectTrigger>
 
                                                     <SelectContent>
-                                                        <SelectItem
-                                                            key="AC"
-                                                            value="AC"
-                                                        >
-                                                            AC
-                                                        </SelectItem>
+                                                        {event.libraryLocation &&
+                                                        event.libraryLocation
+                                                            .roomTypes.length >
+                                                            0 ? (
+                                                            event.libraryLocation.roomTypes.map(
+                                                                (value) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            value.roomType
+                                                                        }
+                                                                        value={String(
+                                                                            value.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            value.roomType
+                                                                        }
+                                                                    </SelectItem>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="RoomTypeNoRecord"
+                                                                value="null"
+                                                                disabled={true}
+                                                            >
+                                                                No Record found
+                                                            </SelectItem>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -305,22 +289,117 @@ export default function CreateBooking() {
                                                     value={String(
                                                         field.value || ''
                                                     )}
-                                                    onValueChange={(value) =>
+                                                    onValueChange={(value) => {
                                                         field.onChange(
                                                             Number(value)
                                                         )
-                                                    }
+                                                    }}
                                                 >
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Booking Type" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem
-                                                            key="10"
-                                                            value="10"
-                                                        >
-                                                            Monthly
-                                                        </SelectItem>
+                                                        {event.libraryLocation &&
+                                                        event.libraryLocation
+                                                            .libraryBookingUnit
+                                                            .length > 0 ? (
+                                                            event.libraryLocation.libraryBookingUnit.map(
+                                                                (value) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            value.bookingUnit
+                                                                        }
+                                                                        value={String(
+                                                                            value.id
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            value.bookingUnit
+                                                                        }
+                                                                    </SelectItem>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="RoomTypeNoRecord"
+                                                                value="null"
+                                                                disabled={true}
+                                                            >
+                                                                No Record found
+                                                            </SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="libraryShiftId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Shift Time</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    {...field}
+                                                    value={String(
+                                                        field.value || ''
+                                                    )}
+                                                    onValueChange={(value) => {
+                                                        field.onChange(
+                                                            Number(value)
+                                                        )
+                                                        calculatePrice()
+                                                    }}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Shift Time" />
+                                                    </SelectTrigger>
+
+                                                    <SelectContent>
+                                                        {event.libraryLocation &&
+                                                        event.libraryLocation
+                                                            .roomTypes.length >
+                                                            0 ? (
+                                                            event.libraryLocation.libraryShifts
+                                                                .filter(
+                                                                    (value) =>
+                                                                        value.libraryBookingUnitId ==
+                                                                            form.getValues(
+                                                                                'unit'
+                                                                            ) &&
+                                                                        value.libraryRoomTypeId ==
+                                                                            form.getValues(
+                                                                                'roomType'
+                                                                            )
+                                                                )
+                                                                .map(
+                                                                    (value) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                value.id
+                                                                            }
+                                                                            value={String(
+                                                                                value.id
+                                                                            )}
+                                                                        >
+                                                                            {
+                                                                                value.period
+                                                                            }
+                                                                        </SelectItem>
+                                                                    )
+                                                                )
+                                                        ) : (
+                                                            <SelectItem
+                                                                key="RoomTypeNoRecord"
+                                                                value="null"
+                                                                disabled={true}
+                                                            >
+                                                                No Record found
+                                                            </SelectItem>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -347,64 +426,39 @@ export default function CreateBooking() {
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
-                                    control={form.control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Start Date</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="date"
-                                                    placeholder="Start Date"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="startTime"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Start Time</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="time"
-                                                    placeholder="Start Date"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             </div>
                         </BaseCard>
                         <div className="w-full flex gap-4">
-                            <BaseCard
-                                cardTitle="Seat Selecation"
-                                cardContentClass="pt-1 "
-                            >
-                                <div className="flex flex-wrap justify-around items-start gap-2">
-                                    {new Array(500).fill('-').map((_, i) => (
-                                        <div key={'seat + ' + i}>
-                                            <Label
-                                                htmlFor={'r' + (i + 1)}
-                                                className=" bg-purple-600 p-2 text-xs min-w-8 min-h-8 text-white rounded-sm border flex justify-center items-center"
-                                            >
-                                                {'R' + (i + 1)}
-                                            </Label>
-                                            <Checkbox
-                                                id={'r' + (i + 1)}
-                                                className="hidden"
-                                            />
+                            {auth?.currentUser?.user &&
+                                auth?.currentUser.user.userTypeId ==
+                                    userTypeEnum.ADMIN && (
+                                    <BaseCard
+                                        cardTitle="Seat Selecation"
+                                        cardContentClass="pt-1 "
+                                    >
+                                        <div className="flex flex-wrap justify-around items-start gap-2">
+                                            {new Array(500)
+                                                .fill('-')
+                                                .map((_, i) => (
+                                                    <div key={'seat + ' + i}>
+                                                        <Label
+                                                            htmlFor={
+                                                                'r' + (i + 1)
+                                                            }
+                                                            className=" bg-purple-600 p-2 text-xs min-w-8 min-h-8 text-white rounded-sm border flex justify-center items-center"
+                                                        >
+                                                            {'R' + (i + 1)}
+                                                        </Label>
+                                                        <Checkbox
+                                                            id={'r' + (i + 1)}
+                                                            className="hidden"
+                                                        />
+                                                    </div>
+                                                ))}
                                         </div>
-                                    ))}
-                                </div>
-                            </BaseCard>
+                                    </BaseCard>
+                                )}
+
                             <BaseCard
                                 cardTitle="Payment Information"
                                 cardContentClass="pt-1 "

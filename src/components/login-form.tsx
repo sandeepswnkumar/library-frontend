@@ -33,12 +33,12 @@ export function LoginForm({ className, setAuthTab, ...props }: LoginFormProps) {
     const dispatch = useAppDispatch()
     const auth = useAppSelector((state) => state.auth)
     const router = useRouter()
-    // useEffect(() => {
-    //     if (auth && auth?.isAuthenticated) {
-    //         console.log('user loggedin')
-    //         router.push('/')
-    //     }
-    // }, [auth, router])
+
+    useEffect(() => {
+        if (window !== undefined) {
+            window.localStorage.setItem('login-url', '/login')
+        }
+    }, [auth, router])
     const formSchema = z.object({
         phone: z.string().min(2, {
             message: 'Phone is required',
@@ -61,6 +61,7 @@ export function LoginForm({ className, setAuthTab, ...props }: LoginFormProps) {
             const resp = await AuthService.userLogin(values)
             if (resp.data.success) {
                 window.localStorage.setItem('_token', resp.data.data.token)
+                window.localStorage.setItem('login-url', '/login')
                 dispatch(setUser(resp.data.data))
                 getInitalData(dispatch)
             }

@@ -33,11 +33,26 @@ export default function RouteProvider({
     const dispatch = useAppDispatch()
     const fetchedRef = useRef(false)
     const isLoading = useRef(false)
-    console.log("pathname === ", pathname)
-    const token = localStorage.getItem('_token')
-    if (token && ['/login', '/admin/login'].includes(pathname)) {
-        router.push('/')
-    }
+
+    // Do not access `window`/`localStorage` during render — move to useEffect
+    useEffect(() => {
+        const token =
+            typeof window !== 'undefined'
+                ? window.localStorage.getItem('_token')
+                : null
+        const urlLogin =
+            typeof window !== 'undefined'
+                ? window.localStorage.getItem('login-url') || '/login'
+                : '/login'
+
+        if (token) {
+            if (['/login', '/admin/login'].includes(pathname)) {
+                router.push('/')
+            }
+        } else {
+            router.push(urlLogin)
+        }
+    }, [pathname, router, auth?.currentUser])
 
     const getCurrentUser = async () => {
         try {

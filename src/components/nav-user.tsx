@@ -56,8 +56,6 @@ export function NavUser({ user }: { user: AppUser }) {
     const router = useRouter()
     const { isMobile } = useSidebar()
 
-    console.log('user', user)
-
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -164,8 +162,10 @@ export function NavUser({ user }: { user: AppUser }) {
                                 const res = await AuthService.logOut()
 
                                 if (res.data.success) {
-                                    localStorage.clear()
-                                    router.push('/admin/login')
+                                    localStorage.removeItem("_token")
+                                    const urlLogin = localStorage.getItem('login-url') || "/login"
+                                    console.log("urlLogin === ", urlLogin)
+                                    router.push(urlLogin)
                                 }
                             }}
                         >

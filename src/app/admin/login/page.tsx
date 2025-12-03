@@ -27,17 +27,10 @@ export default function AdminLogin() {
     const dispatch = useAppDispatch()
     const auth = useAppSelector((state) => state.auth)
     const router = useRouter()
-    const token = window.localStorage.getItem('_token')
 
-    if (token) {
-        console.log('dsd', token)
-        router.push('/')
-    }
     useEffect(() => {
-        if (!token) {
-            router.push('/admin/login')
-        } else if (auth && auth?.isAuthenticated) {
-            router.push('/')
+        if(window !== undefined){
+            window.localStorage.setItem('login-url', '/admin/login')
         }
     }, [auth, router])
 
@@ -61,8 +54,10 @@ export default function AdminLogin() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             const resp = await AuthService.adminLogin(values)
+            console.log("resp", resp)
             if (resp.data.success) {
                 window.localStorage.setItem('_token', resp.data.data.token)
+                window.localStorage.setItem('login-url', '/admin/login')
                 dispatch(setUser(resp.data.data))
                 getInitalData(dispatch)
             }
